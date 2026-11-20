@@ -131,7 +131,7 @@ $verbose = ($argv[1] ?? '') === 'verbose';
 $total = $ok = $choices = 0;
 foreach ($cases as $locale => $list) {
     Lang::set($locale);
-    $bot = new FaqBot(require BASE_PATH . "/app/Lang/help_$locale.php", [], [], true);
+    $bot = new FaqBot(require BASE_PATH . "/app/Lang/help_$locale.php", [], []);
     foreach ($list as [$question, $expected]) {
         $total++;
         $got      = outcome($bot->ask($question));

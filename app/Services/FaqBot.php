@@ -146,7 +146,6 @@ final class FaqBot
         private readonly array $sections,
         private readonly array $categories,
         private readonly array $priorities,
-        private readonly bool $loggedIn,
         private readonly ?string $firstName = null
     ) {
         $this->buildIndex();
@@ -202,9 +201,9 @@ final class FaqBot
         $ticket = $entry['item']['ticket'] ?? null;
 
         if ($ticket !== null) {
-            $link = self::ticketLink($ticket, $this->categories, $this->priorities, $this->loggedIn);
+            $link = self::ticketLink($ticket, $this->categories, $this->priorities);
             return $this->reply(
-                [$this->text(Lang::get($this->loggedIn ? 'bot.declare_prefilled' : 'bot.declare_login'))],
+                [$this->text(Lang::get('bot.declare_prefilled'))],
                 [$this->linkChip($link['label'], $link['href'], true), $this->otherQuestionChip()]
             );
         }
@@ -271,11 +270,11 @@ final class FaqBot
 
     /**
      * Lien « Déclarer un incident » prérempli avec la catégorie et la priorité conseillées.
-     * Partagé avec la page d'aide. Un visiteur non connecté est envoyé vers la connexion.
+     * Partagé avec la page d'aide (réservée, comme l'assistant, aux personnes connectées).
      *
      * @return array{href: string, label: string, detail: string}
      */
-    public static function ticketLink(array $ticket, array $categories, array $priorities, bool $loggedIn): array
+    public static function ticketLink(array $ticket, array $categories, array $priorities): array
     {
         [$categoryId, $priorityCode] = $ticket;
         $params = ['priority' => $priorityCode];
@@ -291,10 +290,8 @@ final class FaqBot
         $detailText = implode(', ', $detail);
 
         return [
-            'href'   => $loggedIn ? url('/tickets/new?' . http_build_query($params)) : url('/login'),
-            'label'  => $loggedIn
-                ? Lang::get('ticket.new') . ($detailText !== '' ? ' (' . $detailText . ')' : '')
-                : Lang::get('bot.login_to_declare'),
+            'href'   => url('/tickets/new?' . http_build_query($params)),
+            'label'  => Lang::get('ticket.new') . ($detailText !== '' ? ' (' . $detailText . ')' : ''),
             'detail' => $detailText,
         ];
     }
@@ -555,8 +552,6 @@ final class FaqBot
 
     private function declareChip(): array
     {
-        return $this->loggedIn
-            ? $this->linkChip(Lang::get('ticket.new'), url('/tickets/new'))
-            : $this->linkChip(Lang::get('bot.login_to_declare'), url('/login'));
+        return $this->linkChip(Lang::get('ticket.new'), url('/tickets/new'));
     }
 }

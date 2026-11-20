@@ -1,8 +1,8 @@
 <?php
 /**
- * Mise en page principale : barre supérieure + contenu.
- * Sert aussi à la page d'aide, consultable sans être connecté : dans ce cas,
- * la barre n'affiche que l'aide, la langue et un bouton de connexion.
+ * Mise en page principale : barre supérieure + contenu, pour les personnes connectées.
+ * L'aide (« ? ») et l'assistant n'apparaissent que pour une personne connectée ; sans
+ * session, la barre n'affiche que la langue et un bouton de connexion.
  * Variables : $title, $content (HTML de la vue, déjà échappé par celle-ci).
  */
 use App\Core\Auth;
@@ -81,10 +81,12 @@ $menu = [
                 <?php if ($user !== null): ?>
                     <a class="btn btn-primary" href="<?= e(url('/tickets/new')) ?>"><?= e(t('ticket.new')) ?></a>
                 <?php endif; ?>
+                <?php if ($user !== null): ?>
                 <a class="help-link" href="<?= e(url('/help')) ?>" title="<?= e(t('nav.help')) ?>" <?= $active === '/help' ? 'aria-current="page"' : '' ?>>
                     <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12" y2="17"/></svg>
                     <span class="help-link-text"><?= e(t('nav.help')) ?></span>
                 </a>
+                <?php endif; ?>
                 <?= View::render('partials/lang') ?>
                 <?php if ($user === null): ?>
                     <a class="btn btn-primary" href="<?= e(url('/login')) ?>"><?= e(t('auth.submit')) ?></a>
@@ -110,6 +112,8 @@ $menu = [
     <?= View::render('partials/flash') ?>
     <?= $content ?>
 </main>
-<?= View::render('partials/chatbot') ?>
+<?php if ($user !== null): ?>
+    <?= View::render('partials/chatbot') ?>
+<?php endif; ?>
 </body>
 </html>

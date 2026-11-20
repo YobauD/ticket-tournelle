@@ -33,8 +33,8 @@ return [
     ['GET',  '/password/forgot', [AuthController::class, 'showForgot'], null],   // demande transmise aux administrateurs
     ['POST', '/password/forgot', [AuthController::class, 'forgot'],     null],
     ['POST', '/lang',   [LangController::class, 'switch'],    null],
-    ['GET',  '/help',   [HelpController::class, 'index'],     null],   // aide : lisible sans être connecté
-    ['POST', '/help/ask', [HelpController::class, 'ask'],     null],   // assistant d'aide (réponses JSON)
+    ['GET',  '/help',   [HelpController::class, 'index'],     ALL],    // aide : réservée aux personnes connectées
+    ['POST', '/help/ask', [HelpController::class, 'ask'],     ALL],    // assistant d'aide (réponses JSON)
     ['GET',  '/account',          [AccountController::class, 'show'],           ALL],
     ['POST', '/account',          [AccountController::class, 'updatePassword'], ALL],
 

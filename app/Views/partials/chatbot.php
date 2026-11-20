@@ -1,6 +1,7 @@
 <?php
 /**
  * Assistant d'aide : bulle « Besoin d'aide ? » et panneau de conversation.
+ * Affiché seulement pour une personne connectée (les mises en page le vérifient).
  *
  * Masqué sans JavaScript (attribut hidden retiré par assets/js/app.js) : la page /help
  * reste alors le moyen d'accéder à l'aide. Les réponses viennent de POST /help/ask.

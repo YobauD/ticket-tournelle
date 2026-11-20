@@ -1,7 +1,9 @@
 <?php
 /**
- * Mise en page des écrans hors connexion (connexion, pages d'erreur).
+ * Mise en page des écrans hors connexion (connexion, mot de passe oublié, pages d'erreur).
+ * L'assistant d'aide n'y apparaît que pour une personne connectée (page d'erreur).
  */
+use App\Core\Auth;
 use App\Core\Config;
 use App\Core\Lang;
 use App\Core\View;
@@ -28,6 +30,8 @@ use App\Core\View;
     <?= $content ?>
     <p class="auth-foot"><?= e(t('app.school')) ?></p>
 </main>
-<?= View::render('partials/chatbot') ?>
+<?php if (Auth::check()): ?>
+    <?= View::render('partials/chatbot') ?>
+<?php endif; ?>
 </body>
 </html>
