@@ -14,8 +14,8 @@ use App\Services\FaqBot;
  * Aide : page FAQ et assistant conversationnel, construits sur le même contenu
  * (app/Lang/help_fr.php et help_en.php).
  *
- * Les deux sont accessibles sans être connecté, pour qu'une personne dont le compte
- * est bloqué puisse s'en servir.
+ * Les deux sont réservés aux personnes connectées (routes et mises en page). Ils restent
+ * ouverts pendant le changement de mot de passe imposé à la première connexion.
  */
 final class HelpController extends Controller
 {
@@ -46,7 +46,6 @@ final class HelpController extends Controller
             $this->sections(),
             $this->categories(),
             $this->priorities(),
-            $user !== null,
             $user['first_name'] ?? null
         );
 

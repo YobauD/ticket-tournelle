@@ -315,9 +315,14 @@ automatiquement en mode `Secure` dès que le site est en HTTPS.
 ## Page d'aide
 
 La page `/help` (icône « ? » de la barre) regroupe le mode d'emploi du portail et les
-solutions de base aux incidents mineurs. Elle est lisible sans être connecté, pour qu'une
-personne dont le compte est bloqué puisse s'en servir, et elle est liée depuis la page de
-connexion et le formulaire de déclaration.
+solutions de base aux incidents mineurs. Elle est liée depuis le formulaire de déclaration.
+
+L'aide et l'assistant « Besoin d'aide ? » sont **réservés aux personnes connectées** : ni la
+page de connexion ni celle du mot de passe oublié ne les affichent, et `/help` comme
+`/help/ask` renvoient vers la connexion sans session. Ils restent ouverts pendant le
+changement de mot de passe imposé à la première connexion, dont la fiche « Première
+connexion » explique les règles. Une personne qui ne peut plus se connecter passe par le
+lien « Mot de passe oublié ? ».
 
 Le contenu est dans `app/Lang/help_fr.php` et `app/Lang/help_en.php`, séparé du code :
 un référent peut ajouter une question sans toucher à la page. Règles à respecter :
