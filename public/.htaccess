@@ -1,0 +1,10 @@
+# Toutes les requêtes qui ne correspondent pas à un fichier réel
+# (CSS, JS, images) sont confiées au contrôleur frontal index.php.
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteRule ^ index.php [QSA,L]
+</IfModule>
+
+# Pas de listing de répertoires
+Options -Indexes

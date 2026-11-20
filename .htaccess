@@ -1,0 +1,23 @@
+# =====================================================================
+#  Installation dans un sous-dossier (MAMP : htdocs/ticket-tournelle)
+#
+#  Toutes les adresses sont redirigées en interne vers le dossier public/.
+#  Les dossiers app/, config/, storage/... restent donc inaccessibles
+#  depuis le navigateur : une adresse comme /ticket-tournelle/config/config.php
+#  est envoyée vers public/config/config.php, qui n'existe pas (page 404).
+#
+#  Sur le serveur du lycée, Apache pointe directement sur public/ :
+#  ce fichier n'est alors pas utilisé.
+# =====================================================================
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteRule ^$ public/ [L]
+    RewriteRule ^((?!public/).*)$ public/$1 [L]
+</IfModule>
+
+# Sans mod_rewrite, on refuse tout plutôt que d'exposer le code et les fichiers déposés
+<IfModule !mod_rewrite.c>
+    Require all denied
+</IfModule>
+
+Options -Indexes

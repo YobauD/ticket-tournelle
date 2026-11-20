@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="Ticket'Tournelle">
+  <rect width="32" height="32" rx="7" fill="#0B5563"/>
+  <path d="M7 11.5A1.5 1.5 0 0 1 8.5 10h15a1.5 1.5 0 0 1 1.5 1.5v2.2a2.4 2.4 0 0 0 0 4.6v2.2a1.5 1.5 0 0 1-1.5 1.5h-15A1.5 1.5 0 0 1 7 20.5v-2.2a2.4 2.4 0 0 0 0-4.6z" fill="#7CE6CB"/>
+  <path d="M13.2 16.2l2 2 3.8-4.2" fill="none" stroke="#0B5563" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
