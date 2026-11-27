@@ -63,7 +63,11 @@ final class AccountController extends Controller
 
         User::setPassword((int) $user['id'], Auth::hash($new), false);
         Session::regenerate();
+        Auth::keepCurrentSession();   // cette session continue, les autres sessions du compte sont fermées
         Log::write('password_changed', 'user:' . $user['id']);
+        if (!$firstTime && $user['email'] !== null) {
+            Notifier::account($user, $user['email'], 'password_changed');
+        }
         Session::flash('success', t('account.password_updated'));
 
         if ($firstTime && $email !== ($user['email'] ?? '')) {

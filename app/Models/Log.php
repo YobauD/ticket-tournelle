@@ -37,7 +37,7 @@ final class Log
     // ------------------------------------------------------------------
 
     /** Actions de sécurité, mises en évidence dans l'écran du journal. */
-    public const SECURITY_ACTIONS = ['login_failed', 'login_blocked', 'account_locked', 'password_request_unknown'];
+    public const SECURITY_ACTIONS = ['login_failed', 'login_blocked', 'login_throttled', 'account_locked', 'password_request_unknown'];
 
     /**
      * Lignes du journal correspondant aux filtres, les plus récentes en premier.

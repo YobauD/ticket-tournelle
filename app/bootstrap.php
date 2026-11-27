@@ -85,6 +85,13 @@ if (PHP_SAPI !== 'cli') {
     // Second rempart contre les XSS, en plus de l'échappement des sorties.
     header("Content-Security-Policy: default-src 'self'; img-src 'self' data:; object-src 'none'; "
          . "base-uri 'self'; form-action 'self'; frame-ancestors 'none'");
+    // Le portail n'utilise ni caméra, ni micro, ni localisation : on les interdit à toute page
+    header('Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=()');
+    header('Cross-Origin-Opener-Policy: same-origin');
+    // En HTTPS, le navigateur refusera ensuite tout accès en HTTP clair pendant un an (HSTS)
+    if ((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || ($_SERVER['SERVER_PORT'] ?? '') === '443') {
+        header('Strict-Transport-Security: max-age=31536000');
+    }
 
     Session::start();
 }

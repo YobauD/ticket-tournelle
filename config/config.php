@@ -35,7 +35,10 @@ $config = [
     'security' => [
         'session_name'        => 'TTSESSID',
         'session_timeout'     => 1800,   // déconnexion après 30 min d'inactivité
-        'max_login_attempts'  => 5,      // verrouillage du compte au-delà
+        // Échecs de connexion, comptés sur les lockout_minutes dernières minutes :
+        'max_login_attempts'  => 5,      // pour un compte depuis un même poste : ce poste est bloqué pour ce compte
+        'ip_max_failures'     => 20,     // depuis un même poste, tous comptes confondus : ce poste est bloqué
+        'account_max_failures' => 50,    // sur un compte, tous postes confondus : le compte est bloqué
         'lockout_minutes'     => 15,
         'password_min_length' => 12,     // recommandation ANSSI pour un mot de passe seul
         'reset_requests_per_hour' => 5,  // demandes « mot de passe oublié » par heure depuis un même poste
