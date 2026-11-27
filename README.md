@@ -215,8 +215,10 @@ n'est pas saisie par l'administrateur : chaque personne la choisit et la confirm
 
 - **Première connexion** : avec le mot de passe provisoire remis par l'administrateur, la
   personne choisit son nouveau mot de passe **et** son adresse e-mail. Un lien de confirmation
-  (valable 48 heures) y est envoyé ; l'adresse n'est enregistrée qu'une fois ce lien ouvert.
-  Une faute de frappe ne peut donc pas envoyer les e-mails chez un inconnu.
+  (valable 48 heures) y est envoyé. Le lien ouvre une page avec un seul bouton « Confirmer mon
+  adresse » : l'adresse n'est enregistrée qu'après ce clic. Une faute de frappe ne peut donc pas
+  envoyer les e-mails chez un inconnu, et une messagerie ou un antivirus qui ouvre les liens pour
+  les analyser ne confirme rien à la place de la personne.
 - **Usage** : notifications des tickets et lien « mot de passe oublié ». Tant qu'aucune adresse
   n'est confirmée, aucun e-mail n'est envoyé à la personne et un bandeau l'invite à en ajouter une.
 - **Changement** : dans « Mon compte », avec le mot de passe actuel et un nouveau lien de

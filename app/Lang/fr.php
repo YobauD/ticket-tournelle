@@ -61,6 +61,10 @@ return [
     'forgot.no_access' => 'Plus accès à votre messagerie ?',
     'forgot.ask_admin' => 'Prévenir un administrateur',
 
+    'confirm.title' => 'Confirmer votre adresse e-mail',
+    'confirm.intro' => 'Bonjour :name, confirmez que :email est bien votre adresse : vous y recevrez les notifications de vos tickets.',
+    'confirm.submit' => 'Confirmer mon adresse',
+    'confirm.not_me' => 'Vous n’avez rien demandé ? Fermez simplement cette page : l’adresse ne sera pas enregistrée.',
     'account.title'            => 'Mon compte',
     'account.profile'          => 'Mes informations',
     'account.notify_email'     => 'E-mail des notifications',

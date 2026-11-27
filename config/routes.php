@@ -43,7 +43,8 @@ return [
     ['POST', '/account',          [AccountController::class, 'updatePassword'], ALL],
     ['POST', '/account/email',    [AccountController::class, 'updateEmail'],    ALL],
     ['POST', '/account/email/resend', [AccountController::class, 'resendConfirmation'], ALL],
-    ['GET',  '/account/email/confirm', [AccountController::class, 'confirmEmail'], null],   // lien reçu par e-mail
+    ['GET',  '/account/email/confirm', [AccountController::class, 'showConfirmEmail'], null],   // lien reçu par e-mail : page à un bouton
+    ['POST', '/account/email/confirm', [AccountController::class, 'confirmEmail'],     null],   // le bouton confirme
 
     // --- Espace déclarant --------------------------------------------------
     ['GET',  '/tickets',               [TicketController::class, 'index'],      ALL],
