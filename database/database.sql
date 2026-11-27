@@ -126,6 +126,8 @@ CREATE TABLE users (
     is_active        TINYINT(1)       NOT NULL DEFAULT 1,
     failed_attempts  TINYINT UNSIGNED NOT NULL DEFAULT 0,
     locked_until     DATETIME         NULL,
+    session_version  INT UNSIGNED     NOT NULL DEFAULT 0,   -- +1 à chaque changement de mot de passe :
+                                                            -- les sessions ouvertes avant sont fermées
     last_login_at    DATETIME         NULL,
     created_at       DATETIME         NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (id),
@@ -293,6 +295,7 @@ CREATE TABLE logs (
     PRIMARY KEY (id),
     KEY idx_logs_date (created_at),
     KEY idx_logs_action (action),
+    KEY idx_logs_ip (ip_address, created_at),   -- limite des échecs de connexion par poste
     CONSTRAINT fk_logs_user FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE SET NULL
 ) ENGINE=InnoDB;
 

@@ -41,7 +41,8 @@ final class AdminController extends Controller
             'lang'       => $this->input('lang', 'fr'),
             'job_title_id' => (int) $this->input('job_title_id'),
         ];
-        $password = (string) ($_POST['password'] ?? '');
+        // Mot de passe provisoire tiré au hasard par le serveur, affiché une seule fois
+        $password = Auth::temporaryPassword();
         $roles    = array_column(User::roles(), null, 'id');
         $errors   = [];
 
@@ -74,9 +75,6 @@ final class AdminController extends Controller
         if (!Lang::isSupported($old['lang'])) {
             $old['lang'] = Config::get('lang.default');
         }
-        if ($policy = Auth::passwordError($password, $old['username'])) {
-            $errors['password'] = t($policy, ['min' => Config::get('security.password_min_length')]);
-        }
 
         if ($errors) {
             http_response_code(422);
@@ -99,7 +97,7 @@ final class AdminController extends Controller
         $title = $old['job_title_id'] ? JobTitle::find($old['job_title_id']) : null;
         Log::write('user_created', 'user:' . $id, 'identifiant=' . $old['username'] . ', role=' . $role . ($title ? ', fonction=' . $title['label_fr'] : ''));
 
-        Session::flash('success', t('admin.user_created', ['username' => $old['username']]));
+        Session::flash('success', t('admin.user_created', ['username' => $old['username'], 'password' => $password]));
         $this->redirect('/admin/users');
     }
 
@@ -193,20 +191,16 @@ final class AdminController extends Controller
 
     public function resetPassword(int $id): void
     {
-        $user     = User::find($id) ?? View::abort(404);
-        $password = (string) ($_POST['password'] ?? '');
+        $user = User::find($id) ?? View::abort(404);
         $this->authorize($user, 'password reset');
 
-        if ($policy = Auth::passwordError($password, $user['username'], $user['email'] ?? '')) {
-            Session::flash('error', t($policy, ['min' => Config::get('security.password_min_length')]));
-            $this->redirect('/admin/users');
-        }
-
+        // Tiré au hasard par le serveur ; les sessions ouvertes du compte sont fermées
+        $password = Auth::temporaryPassword();
         User::setPassword($id, Auth::hash($password), true);
         $answered = PasswordRequest::closeFor($id, 'done', Auth::id());   // demande faite depuis la page de connexion
         Log::write('password_reset', 'user:' . $id, $answered ? 'suite à une demande « mot de passe oublié »' : null);
 
-        Session::flash('success', t('admin.password_reset', ['name' => person($user)]));
+        Session::flash('success', t('admin.password_reset', ['name' => person($user), 'password' => $password]));
         $this->redirect('/admin/users');
     }
 

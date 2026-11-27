@@ -38,9 +38,11 @@ return [
     'auth.help'            => 'Après :attempts essais erronés, le compte est bloqué :minutes minutes : patientez, puis réessayez.',
     'auth.forgot_link'     => 'Mot de passe oublié ?',
     'auth.invalid'         => 'Identifiant ou mot de passe incorrect.',
-    'auth.locked'          => 'Trop de tentatives. Ce compte est bloqué pendant :minutes minutes.',
+    'auth.locked' => 'Trop de tentatives. La connexion à ce compte est bloquée pendant :minutes minutes.',
     'auth.logged_out'      => 'Vous êtes déconnecté.',
     'auth.session_expired' => 'Votre session a expiré après une période d’inactivité. Reconnectez-vous.',
+    'auth.throttled' => 'Trop de tentatives depuis ce poste. Réessayez dans :minutes minutes.',
+    'auth.session_revoked' => 'Le mot de passe de ce compte a été changé : reconnectez-vous.',
 
     // Mot de passe oublié (demande transmise aux administrateurs)
     'forgot.title'         => 'Mot de passe oublié',
@@ -102,6 +104,7 @@ return [
     'password.mismatch'   => 'Les deux mots de passe ne sont pas identiques.',
     'password.show'       => 'Afficher le mot de passe',
     'password.hide'       => 'Masquer le mot de passe',
+    'password.too_common' => 'Ce mot de passe est trop facile à deviner (mot courant ou caractère répété). Choisissez-en un autre.',
 
     // --- Tableau de bord du déclarant ----------------------------------------------
     'dashboard.filter'        => 'Filtrer mes tickets',
@@ -243,14 +246,13 @@ return [
     'user.last_login' => 'Dernière connexion',
 
     'admin.new_user'          => 'Créer un compte',
-    'admin.new_user_hint'     => 'À sa première connexion, la personne choisira son mot de passe et son adresse e-mail. Transmettez-lui son identifiant et le mot de passe provisoire de vive voix.',
+    'admin.new_user_hint' => 'Le mot de passe provisoire est tiré au hasard et affiché une seule fois, après la création. Transmettez-le de vive voix avec l’identifiant : à sa première connexion, la personne choisira son mot de passe et son adresse e-mail.',
     'admin.create_user'       => 'Créer le compte',
-    'admin.temp_password'     => 'Mot de passe provisoire',
     'admin.reset_password'    => 'Réinitialiser le mot de passe',
-    'admin.reset_submit'      => 'Réinitialiser',
-    'admin.user_created'      => 'Le compte :username est créé.',
+    'admin.reset_submit' => 'Générer le mot de passe',
+    'admin.user_created' => 'Le compte :username est créé. Mot de passe provisoire : :password — transmettez-le de vive voix, il ne sera plus affiché.',
     'admin.user_updated'      => 'Le compte de :name est mis à jour.',
-    'admin.password_reset'    => 'Le mot de passe de :name est réinitialisé.',
+    'admin.password_reset' => 'Nouveau mot de passe provisoire de :name : :password — transmettez-le de vive voix, il ne sera plus affiché. Ses sessions ouvertes sont fermées.',
     'admin.identity_hint' => 'La personne se connectera avec le nouvel identifiant ; son mot de passe, son adresse e-mail et ses tickets ne changent pas. Prévenez-la.',
     'admin.identity_updated'  => 'Compte de :name mis à jour : identifiant :username.',
     'admin.identity_unchanged' => 'Rien n’a changé pour :name.',
@@ -285,6 +287,7 @@ return [
     'admin.error.job_title' => 'Choisissez une fonction de la liste.',
     'admin.edit_username' => 'Modifier l’identifiant',
     'admin.no_email' => 'pas d’adresse confirmée',
+    'admin.reset_explain' => 'Un mot de passe provisoire est tiré au hasard et affiché une seule fois. L’ancien ne fonctionnera plus, et les sessions ouvertes du compte seront fermées.',
 
     // --- Erreurs -------------------------------------------------------------------------
     'error.csrf'      => 'Le formulaire a expiré. Rechargez la page puis recommencez.',
@@ -334,7 +337,7 @@ return [
     'mail.verify_link.button' => 'Confirmer mon adresse',
     'mail.verify_link.note' => 'Vous n’avez rien demandé ? Ignorez ce message : l’adresse ne sera pas enregistrée.',
     'mail.password_changed.subject' => 'Votre mot de passe a été changé',
-    'mail.password_changed.intro' => 'Le mot de passe de votre compte vient d’être changé avec le lien reçu par e-mail.',
+    'mail.password_changed.intro' => 'Le mot de passe de votre compte du portail vient d’être changé.',
     'mail.password_changed.note' => 'Ce n’est pas vous ? Prévenez tout de suite un référent numérique.',
     'mail.email_changed.subject' => 'Votre adresse e-mail a été changée',
     'mail.email_changed.intro' => 'Votre compte utilise désormais l’adresse :email. Vous ne recevrez plus de messages à celle-ci.',
@@ -436,6 +439,7 @@ return [
     'audit.action.password_reset_by_link' => 'Mot de passe changé par lien',
     'audit.action.email_confirmation_sent' => 'Lien de confirmation d’adresse envoyé',
     'audit.action.email_confirmed' => 'Adresse e-mail confirmée',
+    'audit.action.login_throttled' => 'Connexion refusée : trop d’essais depuis ce poste',
 
     'pagination.label'    => 'Pagination',
     'pagination.range'    => ':from à :to sur :total',

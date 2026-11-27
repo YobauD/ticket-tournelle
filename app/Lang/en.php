@@ -35,9 +35,11 @@ return [
     'auth.help'            => 'After :attempts wrong attempts, the account is locked for :minutes minutes: wait, then try again.',
     'auth.forgot_link'     => 'Forgot password?',
     'auth.invalid'         => 'Incorrect username or password.',
-    'auth.locked'          => 'Too many attempts. This account is locked for :minutes minutes.',
+    'auth.locked' => 'Too many attempts. Signing in to this account is blocked for :minutes minutes.',
     'auth.logged_out'      => 'You are signed out.',
     'auth.session_expired' => 'Your session expired after a period of inactivity. Sign in again.',
+    'auth.throttled' => 'Too many attempts from this computer. Try again in :minutes minutes.',
+    'auth.session_revoked' => 'This account’s password was changed: please sign in again.',
 
     // Forgotten password (request passed on to the administrators)
     'forgot.title'         => 'Forgotten password',
@@ -99,6 +101,7 @@ return [
     'password.mismatch'   => 'The two passwords do not match.',
     'password.show'       => 'Show password',
     'password.hide'       => 'Hide password',
+    'password.too_common' => 'This password is too easy to guess (common word or repeated character). Choose another one.',
 
     // --- Reporter dashboard ------------------------------------------------------
     'dashboard.filter'        => 'Filter my tickets',
@@ -240,14 +243,13 @@ return [
     'user.last_login' => 'Last sign-in',
 
     'admin.new_user'          => 'Create an account',
-    'admin.new_user_hint'     => 'At first sign-in, the person will choose their password and e-mail address. Give them their username and the temporary password in person.',
+    'admin.new_user_hint' => 'The temporary password is drawn at random and shown once, after creation. Give it in person with the username: at first sign-in, the person will choose their password and e-mail address.',
     'admin.create_user'       => 'Create the account',
-    'admin.temp_password'     => 'Temporary password',
     'admin.reset_password'    => 'Reset password',
-    'admin.reset_submit'      => 'Reset',
-    'admin.user_created'      => 'Account :username is created.',
+    'admin.reset_submit' => 'Generate the password',
+    'admin.user_created' => 'Account :username is created. Temporary password: :password — give it in person, it will not be shown again.',
     'admin.user_updated'      => ':name’s account is updated.',
-    'admin.password_reset'    => ':name’s password is reset.',
+    'admin.password_reset' => 'New temporary password for :name: :password — give it in person, it will not be shown again. Their open sessions are closed.',
     'admin.identity_hint' => 'The person will sign in with the new username; their password, e-mail address and tickets do not change. Let them know.',
     'admin.identity_updated'  => ':name’s account is updated: username :username.',
     'admin.identity_unchanged' => 'Nothing changed for :name.',
@@ -282,6 +284,7 @@ return [
     'admin.error.job_title' => 'Choose a job title from the list.',
     'admin.edit_username' => 'Change username',
     'admin.no_email' => 'no confirmed address',
+    'admin.reset_explain' => 'A temporary password is drawn at random and shown once. The old one will stop working, and the account’s open sessions will be closed.',
 
     // --- Errors -------------------------------------------------------------------------------
     'error.csrf'      => 'The form has expired. Reload the page and try again.',
@@ -331,7 +334,7 @@ return [
     'mail.verify_link.button' => 'Confirm my address',
     'mail.verify_link.note' => 'You did not ask for this? Ignore this message: the address will not be saved.',
     'mail.password_changed.subject' => 'Your password was changed',
-    'mail.password_changed.intro' => 'Your account password has just been changed with the link received by e-mail.',
+    'mail.password_changed.intro' => 'Your portal account password has just been changed.',
     'mail.password_changed.note' => 'Not you? Tell a digital support officer immediately.',
     'mail.email_changed.subject' => 'Your e-mail address was changed',
     'mail.email_changed.intro' => 'Your account now uses the address :email. You will no longer receive messages at this one.',
@@ -433,6 +436,7 @@ return [
     'audit.action.password_reset_by_link' => 'Password changed by link',
     'audit.action.email_confirmation_sent' => 'Address confirmation link sent',
     'audit.action.email_confirmed' => 'E-mail address confirmed',
+    'audit.action.login_throttled' => 'Sign-in refused: too many attempts from this computer',
 
     'pagination.label'    => 'Pagination',
     'pagination.range'    => ':from to :to of :total',

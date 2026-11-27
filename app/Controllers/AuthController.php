@@ -36,7 +36,8 @@ final class AuthController extends Controller
 
         $error = match (Auth::attempt($username, $password)) {
             Auth::OK      => null,
-            Auth::LOCKED  => t('auth.locked', ['minutes' => Config::get('security.lockout_minutes')]),
+            Auth::LOCKED    => t('auth.locked', ['minutes' => Config::get('security.lockout_minutes')]),
+            Auth::THROTTLED => t('auth.throttled', ['minutes' => Config::get('security.lockout_minutes')]),
             default       => t('auth.invalid'),
         };
 

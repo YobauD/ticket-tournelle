@@ -25,7 +25,8 @@ ticket-tournelle/
 │   │                       Category, Location, JobTitle, PasswordRequest, EmailToken,
 │   │                       Priority, Status, Log
 │   ├── Services/           Notifier (e-mails bilingues), FaqBot (assistant d'aide),
-│   │                       AccountPolicy (qui peut gérer quel compte)
+│   │                       AccountPolicy (qui peut gérer quel compte),
+│   │                       LoginThrottle (limites des tentatives de connexion)
 │   ├── Views/              layouts/, partials/, auth/, tickets/, technician/,
 │   │                       admin/, stats/, help/, emails/, errors/
 │   └── Lang/               fr.php, en.php, help_fr.php, help_en.php (contenu de l'aide)
@@ -37,6 +38,7 @@ ticket-tournelle/
 │                           migration_demandes_mdp.sql (demandes « mot de passe oublié », pour une base existante),
 │                           migration_identifiants.sql (connexion par identifiant, pour une base existante),
 │                           migration_adresse_email.sql (adresse choisie par la personne, pour une base existante),
+│                           migration_securite.sql (renforcement de la connexion, pour une base existante),
 │                           migration_superadmin.sql (ajout du rôle à une base existante),
 │                           reset_demo_passwords.sql (remet Provisoire-2026A aux comptes de démonstration)
 ├── scripts/                seed.php, auto_close.php, backup.sh, test_assistant.php,
@@ -343,20 +345,33 @@ Les transitions sont définies dans `Ticket::TRANSITIONS` et vérifiées côté 
 | XSS | Échappement de toutes les sorties avec `e()` ; en-tête CSP sans script ni style en ligne | `helpers.php`, `bootstrap.php` |
 | CSRF | Jeton sur tous les formulaires POST, vérifié par le routeur ; cookie SameSite | `Core/Csrf.php`, `Core/Router.php` |
 | Vol de mots de passe | Hachage Argon2id (BCrypt en repli), re-hachage automatique | `Core/Auth.php` |
-| Force brute | Verrouillage 15 min après 5 échecs ; message d'erreur identique pour tous les cas | `Core/Auth.php`, `Models/User.php` |
+| Force brute | Trois limites sur 15 min, comptées sur le journal : 5 échecs d'un poste sur un compte bloquent ce poste pour ce compte (un attaquant ne bloque pas la vraie personne, qui se connecte d'un autre poste) ; 20 échecs d'un poste, tous comptes confondus, bloquent ce poste (essai d'un mot de passe courant sur tous les comptes) ; 50 échecs sur un compte, tous postes confondus, bloquent le compte. Message et temps de réponse identiques pour un identifiant inconnu | `Services/LoginThrottle.php`, `Core/Auth.php` |
+| Mot de passe faible | 12 caractères, minuscule, majuscule et chiffre ; refus des mots courants (azerty, motdepasse, tournelle…), des répétitions et de l'identifiant ou de l'e-mail | `Core/Auth.php` |
 | Mot de passe oublié | Lien d'une heure à usage unique vers l'adresse confirmée, jeton stocké haché (SHA-256) ; en secours, remise par un administrateur après vérification d'identité ; réponse identique pour une adresse inconnue ; 5 demandes par heure et par poste | `Controllers/AuthController.php`, `Models/PasswordRequest.php` |
-| Vol de session | Cookie HttpOnly et SameSite, nouvel identifiant à la connexion, expiration après 30 min | `Core/Session.php` |
+| Vol de session | Cookie HttpOnly et SameSite, nouvel identifiant à la connexion, expiration après 30 min ; tout changement de mot de passe (par la personne, par lien ou par un administrateur) ferme les autres sessions du compte (`users.session_version`) | `Core/Session.php`, `Core/Auth.php` |
 | Élévation de privilèges | Rôle relu en base à chaque requête, contrôle par route et par ticket | `Core/Router.php`, `Models/Ticket.php` |
 | Fichier malveillant | Type vérifié sur le contenu, liste blanche, nom aléatoire, stockage hors racine web | `Models/Attachment.php` |
-| Mot de passe provisoire | Changement imposé à la première connexion, 12 caractères minimum | `Core/Router.php`, `Core/Auth.php` |
+| Mot de passe provisoire | Tiré au hasard par le serveur (12 caractères, environ 69 bits, sans caractères ambigus), affiché une seule fois à l'administrateur, jamais au journal ; changement imposé à la première connexion | `Core/Auth.php`, `Controllers/AdminController.php` |
 | Comptes administrateurs (C5) | Séparation des privilèges : seul le superadministrateur gère les administrateurs ; superadministrateur géré uniquement sur le serveur ; personne ne modifie son propre rôle ; refus inscrits au journal | `Services/AccountPolicy.php`, `scripts/superadmin.php` |
 | Actions non tracées | Journal d'audit : connexions, échecs, comptes, rôles, mots de passe, référentiels ; consultable, sans modification ni suppression possibles | `Models/Log.php`, `Controllers/AuditController.php` |
 | Requête fabriquée | Saisies qui ne sont pas du texte UTF-8 valide ignorées ; numéro de page ramené dans les bornes | `Core/Controller.php`, `Core/Pagination.php` |
 | Fuite d'informations | Erreurs techniques journalisées, jamais affichées (`debug => false`) | `bootstrap.php` |
+| Navigateur | En-têtes CSP, X-Frame-Options, nosniff, Referrer-Policy, Permissions-Policy (ni caméra, ni micro, ni localisation), Cross-Origin-Opener-Policy ; HSTS (1 an) quand le site est en HTTPS | `bootstrap.php` |
 
 Le site doit être servi en HTTPS avant sa mise en service : sans cela, mots de passe et
 cookies de session circulent en clair sur le réseau du lycée. Le cookie de session passe
-automatiquement en mode `Secure` dès que le site est en HTTPS.
+automatiquement en mode `Secure`, et l'en-tête HSTS est envoyé, dès que le site est en HTTPS.
+
+**Limites par poste et proxy** : les limites de connexion reposent sur l'adresse IP vue par le
+serveur. Sur le réseau du lycée, chaque poste a la sienne. Si un proxy ou un répartiteur est un
+jour placé devant le serveur, tous les postes partageraient son adresse : il faudrait alors
+lire l'adresse d'origine qu'il transmet (en-tête `X-Forwarded-For`, en ne faisant confiance
+qu'à ce proxy), sans quoi 20 erreurs bloqueraient tout le monde.
+
+**Base créée avant ce renforcement** : importer une fois `database/migration_securite.sql`
+(version de session des comptes, index du journal par adresse IP).
+
+**Reste à décider** : la double authentification des comptes administrateurs.
 
 ## Ajouter une langue
 

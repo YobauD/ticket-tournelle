@@ -35,19 +35,17 @@ $titleOptions = static function (?int $currentId, ?string $currentLabel) use ($j
 };
 
 /**
- * Formulaire « mot de passe provisoire », utilisé dans la liste des comptes et dans le bandeau
- * des demandes. $prefix rend les identifiants uniques quand le même compte apparaît deux fois.
+ * « Nouveau mot de passe provisoire », dans la liste des comptes et dans le bandeau des demandes.
+ * Le serveur le tire au hasard et l'affiche une seule fois après l'envoi : l'administrateur
+ * ne choisit pas (et ne réutilise pas) de mot de passe. $prefix distingue les deux emplacements.
  */
-$resetForm = static function (int $uid, string $prefix, string $summaryKey) use ($min): string {
+$resetForm = static function (int $uid, string $prefix, string $summaryKey): string {
     ob_start(); ?>
     <details class="popover">
         <summary class="btn btn-small <?= $prefix === 'pw' ? 'btn-quiet' : '' ?>"><?= e(t($summaryKey)) ?></summary>
         <form method="post" action="<?= e(url('/admin/users/' . $uid . '/password')) ?>">
             <?= csrf_field() ?>
-            <label for="<?= $prefix ?>-<?= $uid ?>"><?= e(t('admin.temp_password')) ?></label>
-            <input type="password" id="<?= $prefix ?>-<?= $uid ?>" name="password" minlength="<?= (int) $min ?>"
-                   autocomplete="new-password" required>
-            <p class="hint"><?= e(t('password.rules', ['min' => $min])) ?></p>
+            <p class="hint"><?= e(t('admin.reset_explain')) ?></p>
             <button class="btn btn-small" type="submit"><?= e(t('admin.reset_submit')) ?></button>
         </form>
     </details>
@@ -271,13 +269,6 @@ $error = static fn (string $field): string => isset($errors[$field])
                     <?php endforeach; ?>
                 </select>
             </div>
-        </div>
-
-        <div class="field <?= isset($errors['password']) ? 'has-error' : '' ?>">
-            <label for="new_password"><?= e(t('admin.temp_password')) ?></label>
-            <input type="password" id="new_password" name="password" minlength="<?= (int) $min ?>" autocomplete="new-password" required>
-            <p class="hint"><?= e(t('password.rules', ['min' => $min])) ?></p>
-            <?= $error('password') ?>
         </div>
 
         <div class="form-actions">

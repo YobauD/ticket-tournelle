@@ -20,7 +20,8 @@ UPDATE users
        must_change_password = 1,
        failed_attempts      = 0,
        locked_until         = NULL,
-       is_active            = 1
+       is_active            = 1,
+       session_version      = session_version + 1   -- ferme les sessions ouvertes de ces comptes
  WHERE username IN ('superadmin', 'admin', 'tech1', 'tech2', 'prof', 'teacher', 'direction');
 
 -- Comptes remis à zéro (doit afficher 7 lignes ; moins si un compte n'existe pas encore :

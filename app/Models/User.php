@@ -159,14 +159,31 @@ final class User
     }
 
     /** Enregistre un nouveau hachage et lève tout verrouillage en cours. */
+    /**
+     * Nouveau mot de passe. La version de session augmente : toutes les sessions ouvertes
+     * avec l'ancien mot de passe sont fermées (voir Auth::user). Lève aussi un blocage.
+     */
     public static function setPassword(int $id, string $hash, bool $mustChange): void
     {
         Database::query(
             'UPDATE users
-                SET password_hash = ?, must_change_password = ?, failed_attempts = 0, locked_until = NULL
+                SET password_hash = ?, must_change_password = ?, failed_attempts = 0, locked_until = NULL,
+                    session_version = session_version + 1
               WHERE id = ?',
             [$hash, (int) $mustChange, $id]
         );
+    }
+
+    /** Même mot de passe, haché avec un algorithme plus récent : les sessions restent ouvertes. */
+    public static function rehash(int $id, string $hash): void
+    {
+        Database::query('UPDATE users SET password_hash = ? WHERE id = ?', [$hash, $id]);
+    }
+
+    /** Bloque le compte entier (attaque depuis de nombreux postes). */
+    public static function lock(int $id, int $minutes): void
+    {
+        Database::query('UPDATE users SET locked_until = NOW() + INTERVAL ? MINUTE WHERE id = ?', [$minutes, $id]);
     }
 
     public static function setLang(int $id, string $lang): void
@@ -178,21 +195,6 @@ final class User
      * Compte un échec de connexion. Au-delà de $max échecs, le compte est verrouillé
      * $minutes minutes (frein aux attaques par force brute). Renvoie true s'il vient de l'être.
      */
-    public static function registerFailedLogin(int $id, int $max, int $minutes): bool
-    {
-        Database::query('UPDATE users SET failed_attempts = failed_attempts + 1 WHERE id = ?', [$id]);
-        $attempts = (int) Database::query('SELECT failed_attempts FROM users WHERE id = ?', [$id])->fetchColumn();
-
-        if ($attempts < $max) {
-            return false;
-        }
-        Database::query(
-            'UPDATE users SET failed_attempts = 0, locked_until = DATE_ADD(NOW(), INTERVAL ? MINUTE) WHERE id = ?',
-            [$minutes, $id]
-        );
-        return true;
-    }
-
     public static function registerSuccessfulLogin(int $id): void
     {
         Database::query(
