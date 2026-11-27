@@ -82,7 +82,7 @@ $error = static fn (string $field): string => isset($errors[$field])
                 <li class="request">
                     <div class="request-who">
                         <strong><?= e(person($request)) ?></strong>
-                        <span class="row-meta"><?= e($request['username']) ?> · <?= e($request['email']) ?> · <?= e(user_subtitle($request)) ?></span>
+                        <span class="row-meta"><?= e($request['username']) ?> · <?= e($request['email'] ?? t('admin.no_email')) ?> · <?= e(user_subtitle($request)) ?></span>
                         <span class="row-meta"><?= e(t('pwreq.requested', ['date' => dt($request['request_at'])])) ?></span>
                         <?php if ($request['request_message'] !== null): ?>
                             <p class="request-message"><span class="sr-only"><?= e(t('pwreq.message')) ?> : </span><?= e($request['request_message']) ?></p>
@@ -130,7 +130,7 @@ $error = static fn (string $field): string => isset($errors[$field])
                     <td data-label="<?= e(t('user.name')) ?>">
                         <strong><?= e(person($user)) ?></strong>
                         <?php if ((int) $user['is_locked'] === 1): ?><span class="badge badge-late"><?= e(t('user.locked')) ?></span><?php endif; ?>
-                        <span class="row-meta"><span class="sr-only"><?= e(t('auth.username')) ?> : </span><?= e($user['username']) ?> · <?= e($user['email']) ?></span>
+                        <span class="row-meta"><span class="sr-only"><?= e(t('auth.username')) ?> : </span><?= e($user['username']) ?> · <?= $user['email'] !== null ? e($user['email']) : '<em>' . e(t('admin.no_email')) . '</em>' ?></span>
                     </td>
 
                     <?php if ($lock !== null): ?>
@@ -186,15 +186,12 @@ $error = static fn (string $field): string => isset($errors[$field])
                             </form>
                             <?= $resetForm($uid, 'pw', 'admin.reset_password') ?>
                             <details class="popover">
-                                <summary class="btn btn-small btn-quiet"><?= e(t('admin.edit_identity')) ?></summary>
+                                <summary class="btn btn-small btn-quiet"><?= e(t('admin.edit_username')) ?></summary>
                                 <form method="post" action="<?= e(url('/admin/users/' . $uid . '/identity')) ?>">
                                     <?= csrf_field() ?>
                                     <label for="un-<?= $uid ?>"><?= e(t('auth.username')) ?></label>
                                     <input type="text" id="un-<?= $uid ?>" name="username" value="<?= e($user['username']) ?>"
                                            maxlength="50" autocomplete="off" autocapitalize="none" spellcheck="false" required>
-                                    <label for="em-<?= $uid ?>"><?= e(t('admin.notify_email')) ?></label>
-                                    <input type="email" id="em-<?= $uid ?>" name="email" value="<?= e($user['email']) ?>"
-                                           maxlength="190" autocomplete="off" required>
                                     <p class="hint"><?= e(t('admin.identity_hint')) ?></p>
                                     <button class="btn btn-small" type="submit"><?= e(t('form.save')) ?></button>
                                 </form>
@@ -235,13 +232,6 @@ $error = static fn (string $field): string => isset($errors[$field])
             <?= $error('username') ?>
         </div>
 
-        <div class="field <?= isset($errors['email']) ? 'has-error' : '' ?>">
-            <label for="new_email"><?= e(t('admin.notify_email')) ?></label>
-            <input type="email" id="new_email" name="email" value="<?= e($old['email'] ?? '') ?>" maxlength="190"
-                   autocomplete="off" required aria-describedby="new_email_hint">
-            <p class="hint" id="new_email_hint"><?= e(t('admin.email_hint')) ?></p>
-            <?= $error('email') ?>
-        </div>
 
         <div class="field <?= isset($errors['job_title_id']) ? 'has-error' : '' ?>">
             <label for="new_title"><?= e(t('user.job_title')) ?> <span class="optional"><?= e(t('form.optional')) ?></span></label>

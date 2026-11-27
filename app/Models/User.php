@@ -71,13 +71,19 @@ final class User
         )->fetchColumn();
     }
 
-    /** Corrige l'identifiant de connexion et l'adresse e-mail de notification d'un compte. */
-    public static function setIdentity(int $id, string $username, string $email): void
+    /**
+     * Enregistre l'adresse e-mail que la personne vient de confirmer (lien ouvert).
+     * Elle sert aux notifications et au lien « mot de passe oublié ».
+     */
+    public static function setEmail(int $id, string $email): void
     {
-        Database::query(
-            'UPDATE users SET username = ?, email = ? WHERE id = ?',
-            [mb_strtolower($username), mb_strtolower($email), $id]
-        );
+        Database::query('UPDATE users SET email = ? WHERE id = ?', [mb_strtolower($email), $id]);
+    }
+
+    /** Corrige l'identifiant de connexion d'un compte. */
+    public static function setUsername(int $id, string $username): void
+    {
+        Database::query('UPDATE users SET username = ? WHERE id = ?', [mb_strtolower($username), $id]);
     }
 
     /**
@@ -124,7 +130,7 @@ final class User
         string $username,
         string $lastName,
         string $firstName,
-        string $email,
+        ?string $email,
         string $passwordHash,
         ?int $techLevel,
         string $lang = 'fr',
@@ -133,7 +139,7 @@ final class User
         Database::query(
             'INSERT INTO users (role_id, job_title_id, username, last_name, first_name, email, password_hash, tech_level, lang, must_change_password)
              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 1)',
-            [$roleId, $jobTitleId, mb_strtolower($username), $lastName, $firstName, mb_strtolower($email), $passwordHash, $techLevel, $lang]
+            [$roleId, $jobTitleId, mb_strtolower($username), $lastName, $firstName, $email === null ? null : mb_strtolower($email), $passwordHash, $techLevel, $lang]
         );
         return Database::lastInsertId();
     }

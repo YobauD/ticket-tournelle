@@ -9,9 +9,9 @@
  * c'est la procédure de secours si le mot de passe du superadministrateur est perdu.
  *
  * Usage :
- *   php scripts/superadmin.php <identifiant>                               compte existant
- *   php scripts/superadmin.php <identifiant> <e-mail> <Prénom> <Nom>       nouveau compte
- * L'identifiant sert à se connecter, l'adresse e-mail (ENT) aux notifications.
+ *   php scripts/superadmin.php <identifiant>                     compte existant
+ *   php scripts/superadmin.php <identifiant> <Prénom> <Nom>      nouveau compte
+ * L'adresse e-mail est choisie par la personne à sa première connexion.
  *   … --fonction="Direction"                               fixe aussi sa fonction (libellé français)
  *
  * Sous MAMP pour Windows : C:\MAMP\bin\php\php8.x.x\php.exe scripts\superadmin.php …
@@ -30,7 +30,7 @@ if (PHP_SAPI !== 'cli') {
     exit('Ce script se lance en ligne de commande, sur le serveur.');
 }
 
-// Option --fonction="…" : retirée des arguments, qui restent dans l'ordre identifiant, e-mail, prénom, nom
+// Option --fonction="…" : retirée des arguments, qui restent dans l'ordre identifiant, prénom, nom
 $fonction = null;
 $args     = [];
 foreach (array_slice($argv, 1) as $arg) {
@@ -54,7 +54,7 @@ if ($fonction !== null) {
 
 $username = mb_strtolower(trim($args[0] ?? ''));
 if (!preg_match(User::USERNAME_PATTERN, $username)) {
-    fwrite(STDERR, "Usage : php scripts/superadmin.php <identifiant> [<e-mail> <Prénom> <Nom>] [--fonction=\"Direction\"]\n");
+    fwrite(STDERR, "Usage : php scripts/superadmin.php <identifiant> [<Prénom> <Nom>] [--fonction=\"Direction\"]\n");
     exit(1);
 }
 
@@ -69,19 +69,14 @@ $password = 'Sa-' . bin2hex(random_bytes(6)) . '-' . random_int(10, 99) . 'Z';
 $user     = User::findByUsername($username);
 
 if ($user === null) {
-    $email     = mb_strtolower(trim($args[1] ?? ''));
-    $firstName = trim($args[2] ?? '');
-    $lastName  = trim($args[3] ?? '');
-    if (filter_var($email, FILTER_VALIDATE_EMAIL) === false || $firstName === '' || $lastName === '') {
-        fwrite(STDERR, "Aucun compte avec cet identifiant : indiquez l'adresse e-mail, le prénom et le nom pour le créer.\n");
+    $firstName = trim($args[1] ?? '');
+    $lastName  = trim($args[2] ?? '');
+    if ($firstName === '' || $lastName === '') {
+        fwrite(STDERR, "Aucun compte avec cet identifiant : indiquez le prénom et le nom pour le créer.\n");
         exit(1);
     }
-    if (User::findByEmail($email) !== null) {
-        fwrite(STDERR, "Un autre compte utilise déjà l'adresse $email.\n");
-        exit(1);
-    }
-    $id = User::create((int) $roleId, $username, $lastName, $firstName, $email, Auth::hash($password), null, 'fr', $jobTitleId);
-    echo "Compte superadministrateur créé : $username ($email)\n";
+    $id = User::create((int) $roleId, $username, $lastName, $firstName, null, Auth::hash($password), null, 'fr', $jobTitleId);
+    echo "Compte superadministrateur créé : $username\n";
 } else {
     $id = (int) $user['id'];
     User::updateAccess($id, (int) $roleId, null, true);

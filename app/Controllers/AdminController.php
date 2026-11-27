@@ -36,7 +36,6 @@ final class AdminController extends Controller
             'last_name'  => $this->input('last_name'),
             'first_name' => $this->input('first_name'),
             'username'   => mb_strtolower($this->input('username')),
-            'email'      => mb_strtolower($this->input('email')),
             'role_id'    => (int) $this->input('role_id'),
             'tech_level' => (int) $this->input('tech_level'),
             'lang'       => $this->input('lang', 'fr'),
@@ -60,12 +59,7 @@ final class AdminController extends Controller
         } elseif ($old['username'] !== '' && User::usernameTaken($old['username'])) {
             $errors['username'] = t('admin.error.username_taken');
         }
-        // Adresse e-mail ENT : notifications uniquement
-        if (filter_var($old['email'], FILTER_VALIDATE_EMAIL) === false || mb_strlen($old['email']) > 190) {
-            $errors['email'] = t('admin.error.email');
-        } elseif (User::findByEmail($old['email']) !== null) {
-            $errors['email'] = t('admin.error.email_taken');
-        }
+        // Pas d'adresse e-mail : la personne la choisit et la confirme à sa première connexion
         if (!isset($roles[$old['role_id']])) {
             $errors['role_id'] = t('admin.error.role');
         } elseif (!AccountPolicy::canAssign(Auth::user(), $roles[$old['role_id']]['code'])) {
@@ -80,7 +74,7 @@ final class AdminController extends Controller
         if (!Lang::isSupported($old['lang'])) {
             $old['lang'] = Config::get('lang.default');
         }
-        if ($policy = Auth::passwordError($password, $old['username'], $old['email'])) {
+        if ($policy = Auth::passwordError($password, $old['username'])) {
             $errors['password'] = t($policy, ['min' => Config::get('security.password_min_length')]);
         }
 
@@ -96,7 +90,7 @@ final class AdminController extends Controller
             $old['username'],
             $old['last_name'],
             $old['first_name'],
-            $old['email'],
+            null,
             Auth::hash($password),
             $this->levelFor($role, $old['tech_level']),
             $old['lang'],
@@ -162,9 +156,10 @@ final class AdminController extends Controller
 
     /** Attribue un nouveau mot de passe provisoire (et lève un éventuel verrouillage). */
     /**
-     * Corrige l'identifiant de connexion et l'adresse e-mail ENT d'un compte (faute de frappe,
-     * changement de nom ou d'adresse). Mêmes droits que pour les autres modifications du compte.
-     * La personne garde ses tickets et son mot de passe ; si elle est connectée, sa session continue.
+     * Corrige l'identifiant de connexion d'un compte (faute de frappe, changement de nom).
+     * Mêmes droits que pour les autres modifications du compte. La personne garde ses tickets,
+     * son mot de passe et son adresse e-mail ; si elle est connectée, sa session continue.
+     * L'adresse e-mail, elle, n'est modifiable que par la personne (Mon compte).
      */
     public function updateIdentity(int $id): void
     {
@@ -172,36 +167,25 @@ final class AdminController extends Controller
         $this->authorize($user, 'identity update');
 
         $username = mb_strtolower($this->input('username'));
-        $email    = mb_strtolower($this->input('email'));
         $name     = person($user);
 
         $error = match (true) {
-            !preg_match(User::USERNAME_PATTERN, $username)            => t('admin.error.username'),
-            User::usernameTaken($username, $id)                        => t('admin.error.username_taken'),
-            filter_var($email, FILTER_VALIDATE_EMAIL) === false,
-            mb_strlen($email) > 190                                    => t('admin.error.email'),
-            User::emailTaken($email, $id)                              => t('admin.error.email_taken'),
-            default                                                    => null,
+            !preg_match(User::USERNAME_PATTERN, $username) => t('admin.error.username'),
+            User::usernameTaken($username, $id)             => t('admin.error.username_taken'),
+            default                                         => null,
         };
         if ($error !== null) {
             Session::flash('error', t('admin.identity_error', ['name' => $name, 'error' => $error]));
             $this->redirect('/admin/users');
         }
 
-        $changes = [];
-        if ($username !== $user['username']) {
-            $changes[] = 'identifiant ' . $user['username'] . ' -> ' . $username;
-        }
-        if ($email !== $user['email']) {
-            $changes[] = 'e-mail ' . $user['email'] . ' -> ' . $email;
-        }
-        if ($changes === []) {
+        if ($username === $user['username']) {
             Session::flash('info', t('admin.identity_unchanged', ['name' => $name]));
             $this->redirect('/admin/users');
         }
 
-        User::setIdentity($id, $username, $email);
-        Log::write('identity_changed', 'user:' . $id, implode(', ', $changes));
+        User::setUsername($id, $username);
+        Log::write('identity_changed', 'user:' . $id, 'identifiant ' . $user['username'] . ' -> ' . $username);
 
         Session::flash('success', t('admin.identity_updated', ['name' => $name, 'username' => $username]));
         $this->redirect('/admin/users');
@@ -213,7 +197,7 @@ final class AdminController extends Controller
         $password = (string) ($_POST['password'] ?? '');
         $this->authorize($user, 'password reset');
 
-        if ($policy = Auth::passwordError($password, $user['username'], $user['email'])) {
+        if ($policy = Auth::passwordError($password, $user['username'], $user['email'] ?? '')) {
             Session::flash('error', t($policy, ['min' => Config::get('security.password_min_length')]));
             $this->redirect('/admin/users');
         }

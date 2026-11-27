@@ -29,7 +29,7 @@ $jobTitle = label($target, 'job_title', $locale);
             <table role="presentation" cellpadding="0" cellspacing="0" style="margin:0 0 16px;font-size:14px;">
                 <tr><td style="padding:3px 16px 3px 0;color:#5C6F76;"><?= e($tr('user.name')) ?></td><td><strong><?= e(person($target)) ?></strong></td></tr>
                 <tr><td style="padding:3px 16px 3px 0;color:#5C6F76;"><?= e($tr('auth.username')) ?></td><td><?= e($target['username']) ?></td></tr>
-                <tr><td style="padding:3px 16px 3px 0;color:#5C6F76;"><?= e($tr('auth.email')) ?></td><td><?= e($target['email']) ?></td></tr>
+                <tr><td style="padding:3px 16px 3px 0;color:#5C6F76;"><?= e($tr('auth.email')) ?></td><td><?= e($target['email'] ?? $tr('admin.no_email')) ?></td></tr>
                 <?php if ($jobTitle !== ''): ?>
                     <tr><td style="padding:3px 16px 3px 0;color:#5C6F76;"><?= e($tr('user.job_title')) ?></td><td><?= e($jobTitle) ?></td></tr>
                 <?php endif; ?>

@@ -50,7 +50,7 @@ final class Notifier
     {
         $sent = 0;
         foreach (User::activeAdmins() as $admin) {
-            if (!AccountPolicy::seesResetRequest($admin, $target)) {
+            if ($admin['email'] === null || !AccountPolicy::seesResetRequest($admin, $target)) {
                 continue;
             }
             try {
@@ -72,8 +72,35 @@ final class Notifier
         return $sent;
     }
 
-    private static function send(string $to, string $locale, string $event, array $ticket, ?string $message): void
+    /**
+     * E-mail lié au compte, envoyé à une seule adresse, dans la langue de la personne.
+     * $kind : reset_link (lien « nouveau mot de passe »), verify_link (confirmation de l'adresse
+     * de récupération) ou password_changed (avis après un changement de mot de passe).
+     */
+    public static function account(array $user, string $to, string $kind, ?string $link = null, array $params = []): bool
     {
+        try {
+            $locale = $user['lang'];
+            $html   = View::render('emails/account', [
+                'locale' => $locale,
+                'kind'   => $kind,
+                'user'   => $user,
+                'link'   => $link,
+                'params' => $params,
+            ]);
+            return Mailer::send($to, Lang::get('mail.' . $kind . '.subject', $params, $locale), $html);
+        } catch (Throwable $e) {
+            error_log('Notification non envoyée : ' . $e->getMessage());
+            return false;
+        }
+    }
+
+    private static function send(?string $to, string $locale, string $event, array $ticket, ?string $message): void
+    {
+        // Pas d'adresse confirmée : la personne n'a pas encore choisi son adresse e-mail
+        if ($to === null || $to === '') {
+            return;
+        }
         try {
             $params = [
                 'ref'    => $ticket['reference'],

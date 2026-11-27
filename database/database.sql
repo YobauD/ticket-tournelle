@@ -16,7 +16,7 @@ USE ticket_tournelle;
 SET NAMES utf8mb4;
 SET FOREIGN_KEY_CHECKS = 0;
 
-DROP TABLE IF EXISTS logs, password_requests, ticket_attachments, ticket_history, ticket_comments,
+DROP TABLE IF EXISTS logs, email_tokens, password_requests, ticket_attachments, ticket_history, ticket_comments,
                      tickets, status, priorities, locations, categories, users, job_titles, roles;
 
 SET FOREIGN_KEY_CHECKS = 1;
@@ -117,7 +117,8 @@ CREATE TABLE users (
     username         VARCHAR(50)      NOT NULL,   -- identifiant de connexion (ex. marie.dupont)
     last_name        VARCHAR(80)      NOT NULL,
     first_name       VARCHAR(80)      NOT NULL,
-    email            VARCHAR(190)     NOT NULL,   -- adresse e-mail ENT : notifications uniquement
+    email            VARCHAR(190)     NULL,       -- adresse choisie et confirmée par la personne (notifications,
+                                                  -- lien « mot de passe oublié ») ; vide tant qu'elle n'est pas confirmée
     password_hash    VARCHAR(255)     NOT NULL,
     tech_level       TINYINT UNSIGNED NULL,
     lang             CHAR(2)          NOT NULL DEFAULT 'fr',
@@ -224,6 +225,31 @@ CREATE TABLE ticket_attachments (
     KEY idx_attachments_ticket (ticket_id),
     CONSTRAINT fk_attachments_ticket FOREIGN KEY (ticket_id) REFERENCES tickets (id) ON DELETE CASCADE,
     CONSTRAINT fk_attachments_user   FOREIGN KEY (user_id)   REFERENCES users (id)
+) ENGINE=InnoDB;
+
+-- ---------------------------------------------------------------------
+--  LIENS ENVOYÉS PAR E-MAIL (réinitialisation, confirmation d'adresse)
+-- ---------------------------------------------------------------------
+
+-- reset  : lien « choisir un nouveau mot de passe », valable 1 heure, à usage unique
+-- verify : lien de confirmation de l'adresse e-mail choisie par la personne ; l'adresse
+--          n'est enregistrée sur le compte qu'une fois le lien ouvert
+-- Seule l'empreinte SHA-256 du jeton est stockée : une fuite de la base ne donne aucun
+-- lien utilisable. Un nouveau lien annule le précédent de même type.
+CREATE TABLE email_tokens (
+    id          INT UNSIGNED  NOT NULL AUTO_INCREMENT,
+    user_id     INT UNSIGNED  NOT NULL,
+    purpose     ENUM('reset', 'verify') NOT NULL,
+    email       VARCHAR(190)  NOT NULL,          -- adresse à laquelle le lien a été envoyé
+    token_hash  CHAR(64)      NOT NULL,
+    expires_at  DATETIME      NOT NULL,
+    used_at     DATETIME      NULL,
+    ip_address  VARCHAR(45)   NULL,
+    created_at  DATETIME      NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (id),
+    UNIQUE KEY uq_email_tokens_hash (token_hash),
+    KEY idx_email_tokens_user (user_id, purpose, used_at),
+    CONSTRAINT fk_email_tokens_user FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
 -- ---------------------------------------------------------------------

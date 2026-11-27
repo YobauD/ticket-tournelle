@@ -18,7 +18,7 @@ final class PasswordRequest
     public const MESSAGE_MAX = 300;
 
     /** Codes du journal comptés pour limiter les demandes venant d'un même poste. */
-    private const LOG_ACTIONS = "('password_request', 'password_request_unknown')";
+    private const LOG_ACTIONS = "('password_request', 'password_request_unknown', 'password_link_sent', 'password_link_refused')";
 
     public static function hasPending(int $userId): bool
     {
