@@ -161,6 +161,52 @@ final class AdminController extends Controller
     }
 
     /** Attribue un nouveau mot de passe provisoire (et lève un éventuel verrouillage). */
+    /**
+     * Corrige l'identifiant de connexion et l'adresse e-mail ENT d'un compte (faute de frappe,
+     * changement de nom ou d'adresse). Mêmes droits que pour les autres modifications du compte.
+     * La personne garde ses tickets et son mot de passe ; si elle est connectée, sa session continue.
+     */
+    public function updateIdentity(int $id): void
+    {
+        $user = User::find($id) ?? View::abort(404);
+        $this->authorize($user, 'identity update');
+
+        $username = mb_strtolower($this->input('username'));
+        $email    = mb_strtolower($this->input('email'));
+        $name     = person($user);
+
+        $error = match (true) {
+            !preg_match(User::USERNAME_PATTERN, $username)            => t('admin.error.username'),
+            User::usernameTaken($username, $id)                        => t('admin.error.username_taken'),
+            filter_var($email, FILTER_VALIDATE_EMAIL) === false,
+            mb_strlen($email) > 190                                    => t('admin.error.email'),
+            User::emailTaken($email, $id)                              => t('admin.error.email_taken'),
+            default                                                    => null,
+        };
+        if ($error !== null) {
+            Session::flash('error', t('admin.identity_error', ['name' => $name, 'error' => $error]));
+            $this->redirect('/admin/users');
+        }
+
+        $changes = [];
+        if ($username !== $user['username']) {
+            $changes[] = 'identifiant ' . $user['username'] . ' -> ' . $username;
+        }
+        if ($email !== $user['email']) {
+            $changes[] = 'e-mail ' . $user['email'] . ' -> ' . $email;
+        }
+        if ($changes === []) {
+            Session::flash('info', t('admin.identity_unchanged', ['name' => $name]));
+            $this->redirect('/admin/users');
+        }
+
+        User::setIdentity($id, $username, $email);
+        Log::write('identity_changed', 'user:' . $id, implode(', ', $changes));
+
+        Session::flash('success', t('admin.identity_updated', ['name' => $name, 'username' => $username]));
+        $this->redirect('/admin/users');
+    }
+
     public function resetPassword(int $id): void
     {
         $user     = User::find($id) ?? View::abort(404);

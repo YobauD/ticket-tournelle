@@ -197,6 +197,11 @@ ENT** du compte ne sert qu'aux notifications. Les deux sont uniques.
   laissé vide, il est formé du prénom et du nom, sans accents (`Hélène Le Gall` →
   `helene.le-gall`), suivi d'un numéro s'il est déjà pris (`marie.dupont2`). Format : 2 à 50
   caractères, minuscules, chiffres, point, tiret ou tiret bas.
+- **Correction** : le bouton « Identifiant et e-mail » d'une ligne d'Administration >
+  Utilisateurs corrige l'un ou l'autre (faute de frappe, changement de nom ou d'adresse).
+  Mot de passe, tickets et session en cours ne changent pas ; le journal d'audit garde
+  l'ancienne et la nouvelle valeur. Mêmes droits que pour le rôle : un administrateur ne
+  modifie pas un compte administrateur.
 - **Mot de passe oublié** : on saisit son identifiant, ou son adresse e-mail si on ne s'en
   souvient plus.
 - Le mot de passe ne peut être ni l'identifiant ni l'adresse e-mail.

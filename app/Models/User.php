@@ -53,9 +53,31 @@ final class User
         return str_contains($value, '@') ? self::findByEmail($value) : self::findByUsername($value);
     }
 
-    public static function usernameTaken(string $username): bool
+    /** Identifiant déjà pris par un autre compte que $exceptId ? */
+    public static function usernameTaken(string $username, ?int $exceptId = null): bool
     {
-        return (bool) Database::query('SELECT 1 FROM users WHERE username = ?', [mb_strtolower($username)])->fetchColumn();
+        return (bool) Database::query(
+            'SELECT 1 FROM users WHERE username = ? AND id <> ?',
+            [mb_strtolower($username), $exceptId ?? 0]
+        )->fetchColumn();
+    }
+
+    /** Adresse e-mail déjà utilisée par un autre compte que $exceptId ? */
+    public static function emailTaken(string $email, ?int $exceptId = null): bool
+    {
+        return (bool) Database::query(
+            'SELECT 1 FROM users WHERE email = ? AND id <> ?',
+            [mb_strtolower($email), $exceptId ?? 0]
+        )->fetchColumn();
+    }
+
+    /** Corrige l'identifiant de connexion et l'adresse e-mail de notification d'un compte. */
+    public static function setIdentity(int $id, string $username, string $email): void
+    {
+        Database::query(
+            'UPDATE users SET username = ?, email = ? WHERE id = ?',
+            [mb_strtolower($username), mb_strtolower($email), $id]
+        );
     }
 
     /**
