@@ -59,6 +59,7 @@ return [
     ['POST', '/admin/users',               [AdminController::class, 'storeUser'],     ADMIN],
     ['POST', '/admin/users/{id}',          [AdminController::class, 'updateUser'],    ADMIN],
     ['POST', '/admin/users/{id}/password', [AdminController::class, 'resetPassword'], ADMIN],
+    ['POST', '/admin/users/{id}/identity', [AdminController::class, 'updateIdentity'], ADMIN],   // identifiant et e-mail
     ['POST', '/admin/password-requests/{id}/dismiss', [AdminController::class, 'dismissRequest'], ADMIN],
 
     ['GET',  '/admin/categories',      [ReferenceController::class, 'categories'],     ADMIN],

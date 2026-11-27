@@ -185,6 +185,20 @@ $error = static fn (string $field): string => isset($errors[$field])
                                 <button class="btn btn-small" type="submit"><?= e(t('form.save')) ?></button>
                             </form>
                             <?= $resetForm($uid, 'pw', 'admin.reset_password') ?>
+                            <details class="popover">
+                                <summary class="btn btn-small btn-quiet"><?= e(t('admin.edit_identity')) ?></summary>
+                                <form method="post" action="<?= e(url('/admin/users/' . $uid . '/identity')) ?>">
+                                    <?= csrf_field() ?>
+                                    <label for="un-<?= $uid ?>"><?= e(t('auth.username')) ?></label>
+                                    <input type="text" id="un-<?= $uid ?>" name="username" value="<?= e($user['username']) ?>"
+                                           maxlength="50" autocomplete="off" autocapitalize="none" spellcheck="false" required>
+                                    <label for="em-<?= $uid ?>"><?= e(t('admin.notify_email')) ?></label>
+                                    <input type="email" id="em-<?= $uid ?>" name="email" value="<?= e($user['email']) ?>"
+                                           maxlength="190" autocomplete="off" required>
+                                    <p class="hint"><?= e(t('admin.identity_hint')) ?></p>
+                                    <button class="btn btn-small" type="submit"><?= e(t('form.save')) ?></button>
+                                </form>
+                            </details>
                         </td>
                     <?php endif; ?>
                 </tr>
