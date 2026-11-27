@@ -25,15 +25,15 @@ final class AuthController extends Controller
         if (Auth::check()) {
             $this->redirect('/');
         }
-        $this->render('auth/login', ['title' => t('auth.title'), 'email' => '', 'error' => null], 'auth');
+        $this->render('auth/login', ['title' => t('auth.title'), 'username' => '', 'error' => null], 'auth');
     }
 
     public function login(): void
     {
-        $email    = $this->input('email');
+        $username = mb_strtolower($this->input('username'));
         $password = is_string($_POST['password'] ?? null) ? $_POST['password'] : ''; // jamais « nettoyé »
 
-        $error = match (Auth::attempt($email, $password)) {
+        $error = match (Auth::attempt($username, $password)) {
             Auth::OK      => null,
             Auth::LOCKED  => t('auth.locked', ['minutes' => Config::get('security.lockout_minutes')]),
             default       => t('auth.invalid'),
@@ -47,7 +47,7 @@ final class AuthController extends Controller
         }
 
         http_response_code(401);
-        $this->render('auth/login', ['title' => t('auth.title'), 'email' => $email, 'error' => $error], 'auth');
+        $this->render('auth/login', ['title' => t('auth.title'), 'username' => $username, 'error' => $error], 'auth');
     }
 
     // ------------------------------------------------------------------
@@ -76,13 +76,14 @@ final class AuthController extends Controller
             $this->redirect('/');
         }
 
-        $email   = mb_strtolower($this->input('email'));
-        $message = $this->input('message');
-        $old     = ['email' => $email, 'message' => $message];
-        $errors  = [];
+        // Identifiant de connexion, ou adresse e-mail pour qui ne se souvient plus de son identifiant
+        $identifier = mb_strtolower($this->input('identifier'));
+        $message    = $this->input('message');
+        $old        = ['identifier' => $identifier, 'message' => $message];
+        $errors     = [];
 
-        if (filter_var($email, FILTER_VALIDATE_EMAIL) === false || mb_strlen($email) > 190) {
-            $errors['email'] = t('forgot.error.email');
+        if ($identifier === '' || mb_strlen($identifier) > 190) {
+            $errors['identifier'] = t('forgot.error.identifier');
         }
         if (mb_strlen($message) > PasswordRequest::MESSAGE_MAX) {
             $errors['message'] = t('forgot.error.message', ['max' => PasswordRequest::MESSAGE_MAX]);
@@ -102,9 +103,9 @@ final class AuthController extends Controller
             return;
         }
 
-        $user = User::findByEmail($email);
+        $user = User::findByUsernameOrEmail($identifier);
         if ($user === null) {
-            Log::write('password_request_unknown', 'email:' . mb_substr($email, 0, 80));
+            Log::write('password_request_unknown', 'login:' . mb_substr($identifier, 0, 80));
         } elseif ((int) $user['is_active'] !== 1) {
             Log::write('password_request', 'user:' . $user['id'], 'compte désactivé : non transmise');
         } elseif (PasswordRequest::hasPending((int) $user['id'])) {

@@ -29,7 +29,7 @@ final class AccountController extends Controller
         if (!password_verify($current, $user['password_hash'])) {
             $errors['current_password'] = t('account.wrong_current');
         }
-        if ($policy = Auth::passwordError($new, $user['email'])) {
+        if ($policy = Auth::passwordError($new, $user['username'], $user['email'])) {
             $errors['new_password'] = t($policy, ['min' => Config::get('security.password_min_length')]);
         } elseif ($new === $current) {
             $errors['new_password'] = t('password.same');

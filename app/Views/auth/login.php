@@ -1,7 +1,7 @@
 <?php
 /**
  * Formulaire de connexion.
- * Variables : $email (saisie précédente), $error (message ou null).
+ * Variables : $username (identifiant saisi précédemment), $error (message ou null).
  */
 use App\Core\Config;
 use App\Core\View;
@@ -19,9 +19,9 @@ use App\Core\View;
         <?= csrf_field() ?>
 
         <div class="field">
-            <label for="email"><?= e(t('auth.email')) ?></label>
-            <input type="email" id="email" name="email" value="<?= e($email) ?>"
-                   autocomplete="username" required autofocus>
+            <label for="username"><?= e(t('auth.username')) ?></label>
+            <input type="text" id="username" name="username" value="<?= e($username) ?>" maxlength="50"
+                   autocomplete="username" autocapitalize="none" spellcheck="false" required autofocus>
         </div>
 
         <div class="field">

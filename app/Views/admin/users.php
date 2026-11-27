@@ -82,7 +82,7 @@ $error = static fn (string $field): string => isset($errors[$field])
                 <li class="request">
                     <div class="request-who">
                         <strong><?= e(person($request)) ?></strong>
-                        <span class="row-meta"><?= e($request['email']) ?> · <?= e(user_subtitle($request)) ?></span>
+                        <span class="row-meta"><?= e($request['username']) ?> · <?= e($request['email']) ?> · <?= e(user_subtitle($request)) ?></span>
                         <span class="row-meta"><?= e(t('pwreq.requested', ['date' => dt($request['request_at'])])) ?></span>
                         <?php if ($request['request_message'] !== null): ?>
                             <p class="request-message"><span class="sr-only"><?= e(t('pwreq.message')) ?> : </span><?= e($request['request_message']) ?></p>
@@ -130,7 +130,7 @@ $error = static fn (string $field): string => isset($errors[$field])
                     <td data-label="<?= e(t('user.name')) ?>">
                         <strong><?= e(person($user)) ?></strong>
                         <?php if ((int) $user['is_locked'] === 1): ?><span class="badge badge-late"><?= e(t('user.locked')) ?></span><?php endif; ?>
-                        <span class="row-meta"><?= e($user['email']) ?></span>
+                        <span class="row-meta"><span class="sr-only"><?= e(t('auth.username')) ?> : </span><?= e($user['username']) ?> · <?= e($user['email']) ?></span>
                     </td>
 
                     <?php if ($lock !== null): ?>
@@ -213,9 +213,19 @@ $error = static fn (string $field): string => isset($errors[$field])
             </div>
         </div>
 
+        <div class="field <?= isset($errors['username']) ? 'has-error' : '' ?>">
+            <label for="new_username"><?= e(t('auth.username')) ?> <span class="optional"><?= e(t('form.optional')) ?></span></label>
+            <input type="text" id="new_username" name="username" value="<?= e($old['username'] ?? '') ?>" maxlength="50"
+                   autocomplete="off" autocapitalize="none" spellcheck="false" aria-describedby="new_username_hint">
+            <p class="hint" id="new_username_hint"><?= e(t('admin.username_hint')) ?></p>
+            <?= $error('username') ?>
+        </div>
+
         <div class="field <?= isset($errors['email']) ? 'has-error' : '' ?>">
-            <label for="new_email"><?= e(t('auth.email')) ?></label>
-            <input type="email" id="new_email" name="email" value="<?= e($old['email'] ?? '') ?>" maxlength="190" autocomplete="off" required>
+            <label for="new_email"><?= e(t('admin.notify_email')) ?></label>
+            <input type="email" id="new_email" name="email" value="<?= e($old['email'] ?? '') ?>" maxlength="190"
+                   autocomplete="off" required aria-describedby="new_email_hint">
+            <p class="hint" id="new_email_hint"><?= e(t('admin.email_hint')) ?></p>
             <?= $error('email') ?>
         </div>
 

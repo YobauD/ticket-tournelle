@@ -35,6 +35,7 @@ ticket-tournelle/
 │                           migration_lieux.sql (lieux sans bâtiment, pour une base existante),
 │                           migration_fonctions.sql (fonctions des personnels, pour une base existante),
 │                           migration_demandes_mdp.sql (demandes « mot de passe oublié », pour une base existante),
+│                           migration_identifiants.sql (connexion par identifiant, pour une base existante),
 │                           migration_superadmin.sql (ajout du rôle à une base existante),
 │                           reset_demo_passwords.sql (remet Provisoire-2026A aux comptes de démonstration)
 ├── scripts/                seed.php, auto_close.php, backup.sh, test_assistant.php,
@@ -138,15 +139,15 @@ sudo -u www-data php scripts/seed.php
 Le script crée quelques lieux et les comptes de démonstration, puis affiche leur mot de passe provisoire
 (à changer à la première connexion) :
 
-| Compte | Rôle | Fonction |
-|---|---|---|
-| superadmin@latournelle.local | Superadministrateur | Direction |
-| admin@latournelle.local | Administrateur | Référent numérique |
-| tech1@latournelle.local | Technicien N1 | Référent numérique |
-| tech2@latournelle.local | Technicien N2 | Référent numérique |
-| prof@latournelle.local | Utilisateur (français) | Professeur |
-| teacher@latournelle.local | Utilisateur (anglais) | Professeur |
-| direction@latournelle.local | Utilisateur | Direction |
+| Identifiant | E-mail (notifications) | Rôle | Fonction |
+|---|---|---|---|
+| `superadmin` | superadmin@latournelle.local | Superadministrateur | Direction |
+| `admin` | admin@latournelle.local | Administrateur | Référent numérique |
+| `tech1` | tech1@latournelle.local | Technicien N1 | Référent numérique |
+| `tech2` | tech2@latournelle.local | Technicien N2 | Référent numérique |
+| `prof` | prof@latournelle.local | Utilisateur (français) | Professeur |
+| `teacher` | teacher@latournelle.local | Utilisateur (anglais) | Professeur |
+| `direction` | direction@latournelle.local | Utilisateur | Direction |
 
 ### 6. Tâches planifiées
 
@@ -187,6 +188,26 @@ Toutes les règles sur les comptes sont réunies dans `app/Services/AccountPolic
 n'affiche que ce que la personne connectée a le droit de faire, et le serveur refait le contrôle :
 une requête fabriquée à la main est refusée et inscrite au journal (« Action refusée »).
 
+### Identifiant et adresse e-mail
+
+On se connecte avec un **identifiant** (`marie.dupont`) et un mot de passe. L'**adresse e-mail
+ENT** du compte ne sert qu'aux notifications. Les deux sont uniques.
+
+- **Création d'un compte** (Administration > Utilisateurs) : l'identifiant est facultatif ;
+  laissé vide, il est formé du prénom et du nom, sans accents (`Hélène Le Gall` →
+  `helene.le-gall`), suivi d'un numéro s'il est déjà pris (`marie.dupont2`). Format : 2 à 50
+  caractères, minuscules, chiffres, point, tiret ou tiret bas.
+- **Mot de passe oublié** : on saisit son identifiant, ou son adresse e-mail si on ne s'en
+  souvient plus.
+- Le mot de passe ne peut être ni l'identifiant ni l'adresse e-mail.
+- Le jour où la connexion par l'ENT sera possible (contrainte C1), l'identifiant pourra être
+  celui de l'ENT ; l'e-mail restera l'adresse de notification.
+
+**Base créée avant ce changement** : importer une fois `database/migration_identifiants.sql`
+(phpMyAdmin > Importer). Chaque compte reçoit comme identifiant la partie de son adresse avant
+le @ (`prof@latournelle.local` → `prof`) ; aucun mot de passe ni ticket n'est modifié. Si deux
+adresses ont la même partie avant le @, le numéro du compte est ajouté (`dupont.12`).
+
 ### Fonctions
 
 Le **rôle** fixe ce qu'une personne peut faire sur le portail ; la **fonction** dit ce qu'elle
@@ -210,7 +231,7 @@ Chaque changement est inscrit au journal d'audit (« Professeur -> Vie scolaire 
 (phpMyAdmin > Importer). Elle crée la liste des fonctions sans modifier les comptes ni les
 tickets ; les comptes existants restent sans fonction jusqu'à ce qu'un administrateur la
 choisisse. Sur le poste MAMP, réimporter ensuite `database/mamp_setup.sql` donne leur fonction
-aux comptes de démonstration et ajoute `direction@latournelle.local`.
+aux comptes de démonstration et ajoute le compte `direction`.
 
 ### Superadministrateur
 
@@ -220,9 +241,9 @@ volé ne peut donc pas en créer d'autres. Il se crée, ou se récupère si son 
 perdu, avec un accès au serveur :
 
 ```bash
-php scripts/superadmin.php direction@latournelle.fr Sophie Lambert   # crée le compte
-php scripts/superadmin.php direction@latournelle.fr                  # compte existant : rôle + nouveau mot de passe
-php scripts/superadmin.php direction@latournelle.fr --fonction="Direction"   # fixe aussi la fonction
+php scripts/superadmin.php sophie.lambert sophie.lambert@ac-versailles.fr Sophie Lambert   # crée le compte
+php scripts/superadmin.php sophie.lambert                       # compte existant : rôle + nouveau mot de passe
+php scripts/superadmin.php sophie.lambert --fonction="Direction"   # fixe aussi la fonction
 ```
 
 Le script affiche un mot de passe provisoire, à changer à la première connexion, et inscrit
@@ -232,12 +253,12 @@ l'opération au journal d'audit. Sous MAMP pour Windows, le PHP à utiliser est
 **Base créée avant l'ajout de ce rôle** : importer une fois `database/migration_superadmin.sql`
 (phpMyAdmin > Importer). Elle ajoute le rôle sans toucher aux comptes ni aux tickets. Sur le
 poste MAMP, réimporter ensuite `database/mamp_setup.sql` ajoute le compte de démonstration
-`superadmin@latournelle.local` sans modifier les autres.
+`superadmin` sans modifier les autres.
 
 ### Mot de passe oublié
 
-Le lien **« Mot de passe oublié ? »** de la page de connexion ouvre un formulaire : l'adresse
-e-mail du compte et, si on le souhaite, où joindre la personne (salle, poste téléphonique).
+Le lien **« Mot de passe oublié ? »** de la page de connexion ouvre un formulaire : l'identifiant
+(ou l'adresse e-mail) du compte et, si on le souhaite, où joindre la personne (salle, poste téléphonique).
 Le portail n'envoie **jamais** de mot de passe ni de lien de réinitialisation par e-mail :
 la demande prévient les administrateurs, qui vérifient l'identité de la personne, de vive voix
 ou par téléphone, puis lui remettent un mot de passe provisoire.

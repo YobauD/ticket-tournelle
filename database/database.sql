@@ -114,9 +114,10 @@ CREATE TABLE users (
     id               INT UNSIGNED     NOT NULL AUTO_INCREMENT,
     role_id          TINYINT UNSIGNED NOT NULL,
     job_title_id     SMALLINT UNSIGNED NULL,
+    username         VARCHAR(50)      NOT NULL,   -- identifiant de connexion (ex. marie.dupont)
     last_name        VARCHAR(80)      NOT NULL,
     first_name       VARCHAR(80)      NOT NULL,
-    email            VARCHAR(190)     NOT NULL,
+    email            VARCHAR(190)     NOT NULL,   -- adresse e-mail ENT : notifications uniquement
     password_hash    VARCHAR(255)     NOT NULL,
     tech_level       TINYINT UNSIGNED NULL,
     lang             CHAR(2)          NOT NULL DEFAULT 'fr',
@@ -127,6 +128,7 @@ CREATE TABLE users (
     last_login_at    DATETIME         NULL,
     created_at       DATETIME         NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (id),
+    UNIQUE KEY uq_users_username (username),
     UNIQUE KEY uq_users_email (email),
     CONSTRAINT fk_users_role FOREIGN KEY (role_id) REFERENCES roles (id),
     CONSTRAINT fk_users_job_title FOREIGN KEY (job_title_id) REFERENCES job_titles (id) ON DELETE SET NULL,
