@@ -75,8 +75,10 @@ final class Router
             exit;
         }
 
-        // 3. Autorisation : le rôle est lu en base, jamais fourni par le navigateur
+        // 3. Autorisation : le rôle est lu en base, jamais fourni par le navigateur.
+        //    Le refus est journalisé : une suite de refus signale quelqu'un qui cherche des pages interdites.
         if (!Auth::is(...$roles)) {
+            \App\Models\Log::write('permission_denied', 'route:' . mb_substr($method . ' ' . $path, 0, 90));
             View::abort(403);
         }
 

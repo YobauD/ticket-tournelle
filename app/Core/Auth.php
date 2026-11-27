@@ -95,7 +95,7 @@ final class Auth
     {
         $ip = $_SERVER['REMOTE_ADDR'] ?? '';
         if (LoginThrottle::ipBlocked($ip)) {
-            password_verify($password, self::DUMMY_HASH);
+            self::dummyVerify($password);
             Log::write('login_throttled', 'login:' . mb_substr($username, 0, 80));
             return self::THROTTLED;
         }
@@ -104,14 +104,14 @@ final class Auth
 
         if ($user === null || (int) $user['is_active'] !== 1) {
             // Vérification factice : le temps de réponse ne trahit pas l'existence du compte
-            password_verify($password, self::DUMMY_HASH);
+            self::dummyVerify($password);
             Log::write('login_failed', 'login:' . mb_substr($username, 0, 80));
             return self::INVALID;
         }
 
         // Compte entier bloqué (attaque depuis de nombreux postes), ou ce poste bloqué pour ce compte
         if ((int) $user['is_locked'] === 1 || LoginThrottle::pairBlocked($user, $ip)) {
-            password_verify($password, self::DUMMY_HASH);
+            self::dummyVerify($password);
             Log::write('login_blocked', 'user:' . $user['id']);
             return self::LOCKED;
         }
@@ -167,14 +167,21 @@ final class Auth
     }
 
     /**
-     * Contrôle la politique de mot de passe. Renvoie la clé de traduction de l'erreur, ou null si tout va bien.
+     * Empreintes d'un mot de passe quelconque, pour les vérifications factices (compte inconnu,
+     * désactivé ou bloqué). Elles ont le même algorithme et le même coût que les vraies empreintes
+     * (Auth::hash) : sans cela, un compte inexistant répondrait plus vite qu'un compte réel
+     * (bcrypt ~50 ms contre Argon2id ~170 ms), ce qui révélerait quels identifiants existent.
      */
-    /**
-     * @param string ...$identifiers identifiant et adresse e-mail du compte : le mot de passe
-     *                               ne peut être ni l'un ni l'autre
-     */
-    /** Hachage d'un mot de passe quelconque, pour les vérifications factices. */
-    private const DUMMY_HASH = '$2y$10$JAoUvp7qAXn28ue1Ezhg8uaMg4IslUB07SVfhw1hOl8Ff98o1nL5a';
+    private const DUMMY_HASHES = [
+        'argon2id' => '$argon2id$v=19$m=65536,t=4,p=1$dHguMTNYaFA1N3hLOWVYLg$xYsbZsq+r6NpH1y2/uwnA4DlBKt6Q/tZnf7ohmMBleM',
+        '2y'       => '$2y$10$JAoUvp7qAXn28ue1Ezhg8uaMg4IslUB07SVfhw1hOl8Ff98o1nL5a',
+    ];
+
+    /** Vérification factice, aussi longue qu'une vraie. */
+    private static function dummyVerify(string $password): void
+    {
+        password_verify($password, self::DUMMY_HASHES[self::algorithm()] ?? self::DUMMY_HASHES['2y']);
+    }
 
     /**
      * Après un changement de son propre mot de passe : la session en cours reprend la nouvelle
@@ -205,6 +212,11 @@ final class Auth
         return implode('-', str_split($chars, 4));
     }
 
+    /**
+     * Contrôle la politique de mot de passe. Renvoie la clé de traduction de l'erreur, ou null si tout va bien.
+     * @param string ...$identifiers identifiant et adresse e-mail du compte : le mot de passe
+     *                               ne peut être ni l'un ni l'autre
+     */
     public static function passwordError(string $password, string ...$identifiers): ?string
     {
         if (mb_strlen($password) < (int) Config::get('security.password_min_length')) {

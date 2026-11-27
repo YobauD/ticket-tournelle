@@ -267,6 +267,8 @@ final class TicketController extends Controller
     {
         $ticket = Ticket::find($id) ?? View::abort(404);
         if (!Ticket::canView($ticket, Auth::user())) {
+            // Ticket d'un autre déclarant (adresse modifiée à la main : IDOR) : refus journalisé
+            Log::write('permission_denied', 'ticket:' . $id);
             View::abort(403);
         }
         return $ticket;
