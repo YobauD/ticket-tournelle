@@ -13,7 +13,7 @@ return [
                 'keywords' => ['sign in', 'log in', 'login', 'username', 'access the portal'],
                 'q'  => 'How do I sign in to the portal?',
                 'a'  => [
-                    ['p', 'Enter your work e-mail address and the password given to you by a digital support officer, then click “Sign in”.'],
+                    ['p', 'Enter your username (for example marie.dupont) and the password given to you by a digital support officer, then click “Sign in”. Your ENT e-mail address is only used for notifications.'],
                     ['p', 'The eye-shaped button in the password field shows what you type: handy for spotting a typo.'],
                     ['note', 'For security, you are signed out after 30 minutes of inactivity, and any form you have not sent is lost. Send your report before stepping away.'],
                 ],
@@ -28,7 +28,7 @@ return [
                         'at least 12 characters;',
                         'at least one lowercase letter, one uppercase letter and one digit.',
                     ]],
-                    ['p', 'It must also differ from your e-mail address and from the temporary password.'],
+                    ['p', 'It must also differ from your username, your e-mail address and the temporary password.'],
                     ['note', 'Tip: three unrelated words joined by hyphens, plus a digit, make a password that is easy to remember and hard to guess.'],
                 ],
             ],
@@ -38,7 +38,7 @@ return [
                 'q'  => 'I forgot my password, or my account is locked',
                 'a'  => [
                     ['p', 'After 5 wrong attempts, the account is locked for 15 minutes: this protects it against break-in attempts. Wait, then try again.'],
-                    ['p', 'If you forgot your password, click “Forgot password?” on the sign-in page, then enter your e-mail address. You can say where you can be reached (room, phone extension).'],
+                    ['p', 'If you forgot your password, click “Forgot password?” on the sign-in page, then enter your username (or your ENT e-mail address if you forgot it). You can say where you can be reached (room, phone extension).'],
                     ['p', 'An administrator is notified. After checking who you are, they give you a temporary password, in person or by phone; you change it at your next sign-in. If you remember your password in the meantime, just sign in: the request is cancelled.'],
                     ['warn', 'Nobody at the school will ever ask for your password, by e-mail or by phone. Never share it.'],
                 ],

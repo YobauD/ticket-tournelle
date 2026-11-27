@@ -23,7 +23,9 @@ $min  = Config::get('security.password_min_length');
         <dl class="details">
             <dt><?= e(t('user.name')) ?></dt>
             <dd><?= e(person($user)) ?></dd>
-            <dt><?= e(t('auth.email')) ?></dt>
+            <dt><?= e(t('auth.username')) ?></dt>
+            <dd><code><?= e($user['username']) ?></code></dd>
+            <dt><?= e(t('account.notify_email')) ?></dt>
             <dd><?= e($user['email']) ?></dd>
             <dt><?= e(t('user.job_title')) ?></dt>
             <dd><?= $user['job_title_id'] !== null ? e(label($user, 'job_title')) : '<span class="muted">' . e(t('admin.no_title_short')) . '</span>' ?></dd>

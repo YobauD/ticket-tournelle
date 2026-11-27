@@ -74,14 +74,14 @@ final class Auth
      * Le message d'erreur est volontairement le même pour « e-mail inconnu » et
      * « mauvais mot de passe » afin de ne pas révéler quels comptes existent.
      */
-    public static function attempt(string $email, string $password): string
+    public static function attempt(string $username, string $password): string
     {
-        $user = User::findByEmail($email);
+        $user = User::findByUsername($username);
 
         if ($user === null || (int) $user['is_active'] !== 1) {
             // Vérification factice : le temps de réponse ne trahit pas l'existence du compte
             password_verify($password, '$2y$10$JAoUvp7qAXn28ue1Ezhg8uaMg4IslUB07SVfhw1hOl8Ff98o1nL5a');
-            Log::write('login_failed', 'email:' . mb_substr($email, 0, 80));
+            Log::write('login_failed', 'login:' . mb_substr($username, 0, 80));
             return self::INVALID;
         }
 
@@ -142,7 +142,11 @@ final class Auth
     /**
      * Contrôle la politique de mot de passe. Renvoie la clé de traduction de l'erreur, ou null si tout va bien.
      */
-    public static function passwordError(string $password, string $email): ?string
+    /**
+     * @param string ...$identifiers identifiant et adresse e-mail du compte : le mot de passe
+     *                               ne peut être ni l'un ni l'autre
+     */
+    public static function passwordError(string $password, string ...$identifiers): ?string
     {
         if (mb_strlen($password) < (int) Config::get('security.password_min_length')) {
             return 'password.too_short';
@@ -150,8 +154,10 @@ final class Auth
         if (!preg_match('/[a-z]/', $password) || !preg_match('/[A-Z]/', $password) || !preg_match('/\d/', $password)) {
             return 'password.too_simple';
         }
-        if (mb_strtolower($password) === mb_strtolower($email)) {
-            return 'password.is_email';
+        foreach ($identifiers as $identifier) {
+            if ($identifier !== '' && mb_strtolower($password) === mb_strtolower($identifier)) {
+                return 'password.is_identifier';
+            }
         }
         return null;
     }

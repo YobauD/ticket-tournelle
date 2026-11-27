@@ -145,3 +145,17 @@ function chat_key(): string
     }
     return $key;
 }
+
+/**
+ * Texte en minuscules sans accents : « Hélène Gaëlle » -> « helene gaelle ».
+ * Sert à comparer des lieux et à proposer un identifiant de connexion.
+ */
+function fold_accents(string $text): string
+{
+    return strtr(mb_strtolower($text), [
+        'à' => 'a', 'á' => 'a', 'â' => 'a', 'ä' => 'a', 'ã' => 'a', 'ç' => 'c', 'é' => 'e', 'è' => 'e',
+        'ê' => 'e', 'ë' => 'e', 'í' => 'i', 'ì' => 'i', 'î' => 'i', 'ï' => 'i', 'ñ' => 'n', 'ó' => 'o',
+        'ò' => 'o', 'ô' => 'o', 'ö' => 'o', 'õ' => 'o', 'ú' => 'u', 'ù' => 'u', 'û' => 'u', 'ü' => 'u',
+        'ý' => 'y', 'ÿ' => 'y', 'œ' => 'oe', 'æ' => 'ae', 'ß' => 'ss',
+    ]);
+}

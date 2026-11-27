@@ -24,12 +24,14 @@ $error = static fn (string $field): string => isset($errors[$field])
     <form method="post" action="<?= e(url('/password/forgot')) ?>" novalidate>
         <?= csrf_field() ?>
 
-        <div class="field <?= isset($errors['email']) ? 'has-error' : '' ?>">
-            <label for="email"><?= e(t('auth.email')) ?></label>
-            <input type="email" id="email" name="email" value="<?= e($old['email'] ?? '') ?>" maxlength="190"
-                   autocomplete="username" required autofocus
-                   <?= isset($errors['email']) ? 'aria-invalid="true" aria-describedby="email_error"' : '' ?>>
-            <?= $error('email') ?>
+        <div class="field <?= isset($errors['identifier']) ? 'has-error' : '' ?>">
+            <label for="identifier"><?= e(t('forgot.identifier')) ?></label>
+            <input type="text" id="identifier" name="identifier" value="<?= e($old['identifier'] ?? '') ?>" maxlength="190"
+                   autocomplete="username" autocapitalize="none" spellcheck="false" required autofocus
+                   aria-describedby="identifier_hint<?= isset($errors['identifier']) ? ' identifier_error' : '' ?>"
+                   <?= isset($errors['identifier']) ? 'aria-invalid="true"' : '' ?>>
+            <p class="hint" id="identifier_hint"><?= e(t('forgot.identifier_hint')) ?></p>
+            <?= $error('identifier') ?>
         </div>
 
         <div class="field <?= isset($errors['message']) ? 'has-error' : '' ?>">

@@ -84,12 +84,7 @@ final class Location
      */
     public static function key(string $name): string
     {
-        $key = strtr(mb_strtolower($name), [
-            'à' => 'a', 'â' => 'a', 'ä' => 'a', 'ç' => 'c', 'é' => 'e', 'è' => 'e', 'ê' => 'e', 'ë' => 'e',
-            'î' => 'i', 'ï' => 'i', 'ô' => 'o', 'ö' => 'o', 'ù' => 'u', 'û' => 'u', 'ü' => 'u', 'ÿ' => 'y',
-            'œ' => 'oe', 'æ' => 'ae',
-        ]);
-        $key = trim((string) preg_replace('/[^a-z0-9]+/', ' ', $key));
+        $key = trim((string) preg_replace('/[^a-z0-9]+/', ' ', fold_accents($name)));
         $key = (string) preg_replace('/^(salle|room)\s+/', '', $key);
         return str_replace(' ', '', $key);
     }

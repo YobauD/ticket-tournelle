@@ -35,6 +35,7 @@ final class AdminController extends Controller
         $old = [
             'last_name'  => $this->input('last_name'),
             'first_name' => $this->input('first_name'),
+            'username'   => mb_strtolower($this->input('username')),
             'email'      => mb_strtolower($this->input('email')),
             'role_id'    => (int) $this->input('role_id'),
             'tech_level' => (int) $this->input('tech_level'),
@@ -51,6 +52,15 @@ final class AdminController extends Controller
         if ($old['first_name'] === '' || mb_strlen($old['first_name']) > 80) {
             $errors['first_name'] = t('admin.error.name');
         }
+        // Identifiant de connexion : proposé (prenom.nom) s'il est laissé vide
+        if ($old['username'] === '' && !isset($errors['last_name']) && !isset($errors['first_name'])) {
+            $old['username'] = User::suggestUsername($old['first_name'], $old['last_name']);
+        } elseif ($old['username'] !== '' && !preg_match(User::USERNAME_PATTERN, $old['username'])) {
+            $errors['username'] = t('admin.error.username');
+        } elseif ($old['username'] !== '' && User::usernameTaken($old['username'])) {
+            $errors['username'] = t('admin.error.username_taken');
+        }
+        // Adresse e-mail ENT : notifications uniquement
         if (filter_var($old['email'], FILTER_VALIDATE_EMAIL) === false || mb_strlen($old['email']) > 190) {
             $errors['email'] = t('admin.error.email');
         } elseif (User::findByEmail($old['email']) !== null) {
@@ -61,7 +71,7 @@ final class AdminController extends Controller
         } elseif (!AccountPolicy::canAssign(Auth::user(), $roles[$old['role_id']]['code'])) {
             // Le menu ne propose pas ce rôle : la requête a été fabriquée à la main
             $errors['role_id'] = t('admin.error.role_forbidden');
-            Log::write('permission_denied', 'email:' . mb_substr($old['email'], 0, 80), 'create role=' . $roles[$old['role_id']]['code']);
+            Log::write('permission_denied', 'login:' . mb_substr($old['username'], 0, 80), 'create role=' . $roles[$old['role_id']]['code']);
         }
         // Fonction facultative (0 = non renseignée), mais si elle est donnée, elle doit être active
         if ($old['job_title_id'] !== 0 && !JobTitle::isActive($old['job_title_id'])) {
@@ -70,7 +80,7 @@ final class AdminController extends Controller
         if (!Lang::isSupported($old['lang'])) {
             $old['lang'] = Config::get('lang.default');
         }
-        if ($policy = Auth::passwordError($password, $old['email'])) {
+        if ($policy = Auth::passwordError($password, $old['username'], $old['email'])) {
             $errors['password'] = t($policy, ['min' => Config::get('security.password_min_length')]);
         }
 
@@ -83,6 +93,7 @@ final class AdminController extends Controller
         $role = $roles[$old['role_id']]['code'];
         $id   = User::create(
             $old['role_id'],
+            $old['username'],
             $old['last_name'],
             $old['first_name'],
             $old['email'],
@@ -92,9 +103,9 @@ final class AdminController extends Controller
             $old['job_title_id'] ?: null
         );
         $title = $old['job_title_id'] ? JobTitle::find($old['job_title_id']) : null;
-        Log::write('user_created', 'user:' . $id, 'role=' . $role . ($title ? ', fonction=' . $title['label_fr'] : ''));
+        Log::write('user_created', 'user:' . $id, 'identifiant=' . $old['username'] . ', role=' . $role . ($title ? ', fonction=' . $title['label_fr'] : ''));
 
-        Session::flash('success', t('admin.user_created', ['email' => $old['email']]));
+        Session::flash('success', t('admin.user_created', ['username' => $old['username']]));
         $this->redirect('/admin/users');
     }
 
@@ -156,7 +167,7 @@ final class AdminController extends Controller
         $password = (string) ($_POST['password'] ?? '');
         $this->authorize($user, 'password reset');
 
-        if ($policy = Auth::passwordError($password, $user['email'])) {
+        if ($policy = Auth::passwordError($password, $user['username'], $user['email'])) {
             Session::flash('error', t($policy, ['min' => Config::get('security.password_min_length')]));
             $this->redirect('/admin/users');
         }

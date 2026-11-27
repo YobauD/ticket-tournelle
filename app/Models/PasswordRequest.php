@@ -61,7 +61,7 @@ final class PasswordRequest
     {
         return Database::query(
             "SELECT pr.id AS request_id, pr.message AS request_message, pr.created_at AS request_at,
-                    u.id, u.first_name, u.last_name, u.email, u.lang, u.job_title_id, u.tech_level,
+                    u.id, u.username, u.first_name, u.last_name, u.email, u.lang, u.job_title_id, u.tech_level,
                     r.code AS role_code, r.label_fr AS role_fr, r.label_en AS role_en,
                     j.label_fr AS job_title_fr, j.label_en AS job_title_en
                FROM password_requests pr

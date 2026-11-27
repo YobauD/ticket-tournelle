@@ -4,8 +4,8 @@
 --
 --  1. Compte MySQL de l'application, au moindre privilège
 --  2. Lieux d'exemple
---  3. Comptes de démonstration (dont superadmin@latournelle.local et
---     direction@latournelle.local, un compte Utilisateur de fonction Direction),
+--  3. Comptes de démonstration, identifiants : superadmin, admin, tech1, tech2,
+--     prof, teacher et direction (un compte Utilisateur de fonction Direction),
 --     mot de passe provisoire : Provisoire-2026A
 --     (à changer à la première connexion)
 --
@@ -51,8 +51,10 @@ INSERT IGNORE INTO locations (name) VALUES
 --     Le mot de passe est stocké haché (BCrypt), jamais en clair.
 --     must_change_password = 1 : changement imposé à la première connexion.
 -- ---------------------------------------------------------------------
-INSERT IGNORE INTO users (role_id, last_name, first_name, email, password_hash, tech_level, lang, must_change_password)
-SELECT r.id, d.last_name, d.first_name, d.email,
+--     On se connecte avec l'identifiant (prof, admin…) ; l'adresse e-mail ne sert
+--     qu'aux notifications.
+INSERT IGNORE INTO users (role_id, username, last_name, first_name, email, password_hash, tech_level, lang, must_change_password)
+SELECT r.id, SUBSTRING_INDEX(d.email, '@', 1), d.last_name, d.first_name, d.email,
        '$2y$10$WzYO63cAbvJXb973WhKSBOrzpEpyzj4sxhx3VfEBQT/1M2Crma8ai',
        d.tech_level, d.lang, 1
   FROM (

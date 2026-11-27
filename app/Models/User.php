@@ -10,6 +10,13 @@ final class User
     /** Rôles qui donnent accès à l'administration (comptes, référentiels, journal, statistiques). */
     public const ADMIN_ROLES = ['admin', 'superadmin'];
 
+    /**
+     * Identifiant de connexion : 2 à 50 caractères, minuscules sans accents, chiffres, point,
+     * tiret ou tiret bas, commençant et finissant par une lettre ou un chiffre (marie.dupont).
+     * L'adresse e-mail, elle, ne sert qu'aux notifications.
+     */
+    public const USERNAME_PATTERN = '/^[a-z0-9](?:[a-z0-9._-]{0,48}[a-z0-9])?$/';
+
     public static function hasAdminRights(array $user): bool
     {
         return in_array($user['role_code'], self::ADMIN_ROLES, true);
@@ -34,6 +41,43 @@ final class User
         return Database::query(self::SELECT . ' WHERE u.email = ?', [mb_strtolower(trim($email))])->fetch() ?: null;
     }
 
+    /** Compte par identifiant de connexion (comparaison insensible à la casse). */
+    public static function findByUsername(string $username): ?array
+    {
+        return Database::query(self::SELECT . ' WHERE u.username = ?', [mb_strtolower(trim($username))])->fetch() ?: null;
+    }
+
+    /** Identifiant, ou adresse e-mail si la saisie contient un @ (formulaire « mot de passe oublié »). */
+    public static function findByUsernameOrEmail(string $value): ?array
+    {
+        return str_contains($value, '@') ? self::findByEmail($value) : self::findByUsername($value);
+    }
+
+    public static function usernameTaken(string $username): bool
+    {
+        return (bool) Database::query('SELECT 1 FROM users WHERE username = ?', [mb_strtolower($username)])->fetchColumn();
+    }
+
+    /**
+     * Identifiant proposé quand l'administrateur n'en saisit pas : prenom.nom sans accents
+     * (Hélène Le Gall -> helene.le-gall), suivi d'un numéro s'il est déjà pris (marie.dupont2).
+     */
+    public static function suggestUsername(string $firstName, string $lastName): string
+    {
+        $part = static fn (string $name): string => trim(
+            (string) preg_replace(['/[\s\']+/', '/[^a-z0-9-]+/', '/-{2,}/'], ['-', '', '-'], fold_accents(trim($name))),
+            '-'
+        );
+        $base = mb_substr(trim($part($firstName) . '.' . $part($lastName), '.'), 0, 45);
+        $base = $base !== '' ? $base : 'utilisateur';
+
+        $candidate = $base;
+        for ($n = 2; self::usernameTaken($candidate); $n++) {
+            $candidate = $base . $n;
+        }
+        return $candidate;
+    }
+
     public static function all(): array
     {
         return Database::query(self::SELECT . ' ORDER BY u.last_name, u.first_name')->fetchAll();
@@ -55,6 +99,7 @@ final class User
     /** Crée un compte avec un mot de passe provisoire, à changer à la première connexion. */
     public static function create(
         int $roleId,
+        string $username,
         string $lastName,
         string $firstName,
         string $email,
@@ -64,9 +109,9 @@ final class User
         ?int $jobTitleId = null
     ): int {
         Database::query(
-            'INSERT INTO users (role_id, job_title_id, last_name, first_name, email, password_hash, tech_level, lang, must_change_password)
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1)',
-            [$roleId, $jobTitleId, $lastName, $firstName, mb_strtolower($email), $passwordHash, $techLevel, $lang]
+            'INSERT INTO users (role_id, job_title_id, username, last_name, first_name, email, password_hash, tech_level, lang, must_change_password)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 1)',
+            [$roleId, $jobTitleId, mb_strtolower($username), $lastName, $firstName, mb_strtolower($email), $passwordHash, $techLevel, $lang]
         );
         return Database::lastInsertId();
     }
