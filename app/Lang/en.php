@@ -58,6 +58,10 @@ return [
     'forgot.no_access' => 'No access to your mailbox?',
     'forgot.ask_admin' => 'Notify an administrator',
 
+    'confirm.title' => 'Confirm your e-mail address',
+    'confirm.intro' => 'Hello :name, confirm that :email is your address: you will receive your ticket notifications there.',
+    'confirm.submit' => 'Confirm my address',
+    'confirm.not_me' => 'You did not ask for this? Just close this page: the address will not be saved.',
     'account.title'            => 'My account',
     'account.profile'          => 'My details',
     'account.notify_email'     => 'Notification e-mail',

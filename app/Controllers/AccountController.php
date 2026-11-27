@@ -115,13 +115,30 @@ final class AccountController extends Controller
     }
 
     /**
-     * Lien de confirmation ouvert depuis l'e-mail. Accessible sans être connecté : on peut
-     * l'ouvrir depuis un téléphone. Le jeton, secret et à usage unique, prouve que la personne
-     * reçoit bien les e-mails à cette adresse.
+     * Lien ouvert depuis l'e-mail : une page avec un seul bouton « Confirmer mon adresse ».
+     * Ouvrir le lien ne confirme rien : les messageries et antivirus qui ouvrent les liens
+     * d'un e-mail pour les analyser ne peuvent donc pas confirmer l'adresse à la place de la
+     * personne. Accessible sans être connecté, pour l'ouvrir depuis un téléphone.
+     */
+    public function showConfirmEmail(): void
+    {
+        $token = $this->query('token');
+        $found = EmailToken::findValid($token, EmailToken::VERIFY);
+        $this->render('auth/confirm_email', [
+            'title' => t('confirm.title'),
+            'token' => $found !== null ? $token : '',
+            'email' => $found['token_email'] ?? null,
+            'name'  => $found['first_name'] ?? null,
+        ], 'auth');
+    }
+
+    /**
+     * Le bouton de la page de confirmation. Le jeton, secret et à usage unique, prouve que la
+     * personne reçoit bien les e-mails à cette adresse.
      */
     public function confirmEmail(): void
     {
-        $token = EmailToken::findValid($this->query('token'), EmailToken::VERIFY);
+        $token = EmailToken::findValid($this->input('token'), EmailToken::VERIFY);
         $back  = Auth::check() ? '/account#email' : '/login';
 
         if ($token === null) {
