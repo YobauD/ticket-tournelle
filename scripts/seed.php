@@ -51,12 +51,13 @@ $accounts = [
 $hash = Auth::hash($password);
 foreach ($accounts as [$role, $last, $first, $email, $level, $lang, $title]) {
     $username = strstr($email, '@', true);   // identifiant de connexion : prof, admin, tech1…
+    // Pas d'adresse e-mail : la personne la choisit et la confirme à sa première connexion
     if (User::findByUsername($username) !== null) {
         echo "Déjà présent : $username\n";
         continue;
     }
-    User::create((int) $roles[$role], $username, $last, $first, $email, $hash, $level, $lang, $titles[$title] ?? null);
-    echo "Créé : $username, $email ($role, $title)\n";
+    User::create((int) $roles[$role], $username, $last, $first, null, $hash, $level, $lang, $titles[$title] ?? null);
+    echo "Créé : $username ($role, $title)\n";
 }
 
 echo "\nMot de passe provisoire des comptes créés : $password\n";

@@ -30,13 +30,20 @@ return [
     ['GET',  '/login',  [AuthController::class, 'showLogin'], null],
     ['POST', '/login',  [AuthController::class, 'login'],     null],
     ['POST', '/logout', [AuthController::class, 'logout'],    ALL],
-    ['GET',  '/password/forgot', [AuthController::class, 'showForgot'], null],   // demande transmise aux administrateurs
+    ['GET',  '/password/forgot', [AuthController::class, 'showForgot'], null],   // lien envoyé à l'adresse confirmée
     ['POST', '/password/forgot', [AuthController::class, 'forgot'],     null],
+    ['GET',  '/password/reset',  [AuthController::class, 'showReset'],  null],   // formulaire ouvert depuis le lien
+    ['POST', '/password/reset',  [AuthController::class, 'reset'],      null],
+    ['GET',  '/password/admin',  [AuthController::class, 'showAdminRequest'], null],   // secours : demande à un administrateur
+    ['POST', '/password/admin',  [AuthController::class, 'adminRequest'],     null],
     ['POST', '/lang',   [LangController::class, 'switch'],    null],
     ['GET',  '/help',   [HelpController::class, 'index'],     ALL],    // aide : réservée aux personnes connectées
     ['POST', '/help/ask', [HelpController::class, 'ask'],     ALL],    // assistant d'aide (réponses JSON)
     ['GET',  '/account',          [AccountController::class, 'show'],           ALL],
     ['POST', '/account',          [AccountController::class, 'updatePassword'], ALL],
+    ['POST', '/account/email',    [AccountController::class, 'updateEmail'],    ALL],
+    ['POST', '/account/email/resend', [AccountController::class, 'resendConfirmation'], ALL],
+    ['GET',  '/account/email/confirm', [AccountController::class, 'confirmEmail'], null],   // lien reçu par e-mail
 
     // --- Espace déclarant --------------------------------------------------
     ['GET',  '/tickets',               [TicketController::class, 'index'],      ALL],

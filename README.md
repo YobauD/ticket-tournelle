@@ -22,7 +22,7 @@ ticket-tournelle/
 │   ├── Controllers/        Auth, Account, Lang, Ticket, Technician, Admin, Help,
 │   │                       Reference (catégories, lieux, fonctions), Audit, Stats
 │   ├── Models/             User, Ticket, Comment, History, Attachment, Stats,
-│   │                       Category, Location, JobTitle, PasswordRequest,
+│   │                       Category, Location, JobTitle, PasswordRequest, EmailToken,
 │   │                       Priority, Status, Log
 │   ├── Services/           Notifier (e-mails bilingues), FaqBot (assistant d'aide),
 │   │                       AccountPolicy (qui peut gérer quel compte)
@@ -36,6 +36,7 @@ ticket-tournelle/
 │                           migration_fonctions.sql (fonctions des personnels, pour une base existante),
 │                           migration_demandes_mdp.sql (demandes « mot de passe oublié », pour une base existante),
 │                           migration_identifiants.sql (connexion par identifiant, pour une base existante),
+│                           migration_adresse_email.sql (adresse choisie par la personne, pour une base existante),
 │                           migration_superadmin.sql (ajout du rôle à une base existante),
 │                           reset_demo_passwords.sql (remet Provisoire-2026A aux comptes de démonstration)
 ├── scripts/                seed.php, auto_close.php, backup.sh, test_assistant.php,
@@ -136,18 +137,19 @@ Dans `/etc/php/8.2/apache2/php.ini`, pour accepter les pièces jointes de 5 Mo :
 sudo -u www-data php scripts/seed.php
 ```
 
-Le script crée quelques lieux et les comptes de démonstration, puis affiche leur mot de passe provisoire
-(à changer à la première connexion) :
+Le script crée quelques lieux et les comptes de démonstration, puis affiche leur mot de passe provisoire.
+Les comptes n'ont pas d'adresse e-mail : à la première connexion, chacun choisit son mot de passe
+et son adresse.
 
-| Identifiant | E-mail (notifications) | Rôle | Fonction |
-|---|---|---|---|
-| `superadmin` | superadmin@latournelle.local | Superadministrateur | Direction |
-| `admin` | admin@latournelle.local | Administrateur | Référent numérique |
-| `tech1` | tech1@latournelle.local | Technicien N1 | Référent numérique |
-| `tech2` | tech2@latournelle.local | Technicien N2 | Référent numérique |
-| `prof` | prof@latournelle.local | Utilisateur (français) | Professeur |
-| `teacher` | teacher@latournelle.local | Utilisateur (anglais) | Professeur |
-| `direction` | direction@latournelle.local | Utilisateur | Direction |
+| Identifiant | Rôle | Fonction |
+|---|---|---|
+| `superadmin` | Superadministrateur | Direction |
+| `admin` | Administrateur | Référent numérique |
+| `tech1` | Technicien N1 | Référent numérique |
+| `tech2` | Technicien N2 | Référent numérique |
+| `prof` | Utilisateur (français) | Professeur |
+| `teacher` | Utilisateur (anglais) | Professeur |
+| `direction` | Utilisateur | Direction |
 
 ### 6. Tâches planifiées
 
@@ -190,23 +192,40 @@ une requête fabriquée à la main est refusée et inscrite au journal (« Actio
 
 ### Identifiant et adresse e-mail
 
-On se connecte avec un **identifiant** (`marie.dupont`) et un mot de passe. L'**adresse e-mail
-ENT** du compte ne sert qu'aux notifications. Les deux sont uniques.
+On se connecte avec un **identifiant** (`marie.dupont`) et un mot de passe. L'**adresse e-mail**
+n'est pas saisie par l'administrateur : chaque personne la choisit et la confirme elle-même
+(voir « Adresse e-mail » ci-dessous). Identifiant et adresse sont uniques.
 
 - **Création d'un compte** (Administration > Utilisateurs) : l'identifiant est facultatif ;
   laissé vide, il est formé du prénom et du nom, sans accents (`Hélène Le Gall` →
   `helene.le-gall`), suivi d'un numéro s'il est déjà pris (`marie.dupont2`). Format : 2 à 50
   caractères, minuscules, chiffres, point, tiret ou tiret bas.
-- **Correction** : le bouton « Identifiant et e-mail » d'une ligne d'Administration >
-  Utilisateurs corrige l'un ou l'autre (faute de frappe, changement de nom ou d'adresse).
-  Mot de passe, tickets et session en cours ne changent pas ; le journal d'audit garde
-  l'ancienne et la nouvelle valeur. Mêmes droits que pour le rôle : un administrateur ne
-  modifie pas un compte administrateur.
-- **Mot de passe oublié** : on saisit son identifiant, ou son adresse e-mail si on ne s'en
-  souvient plus.
+- **Correction** : le bouton « Modifier l'identifiant » d'une ligne d'Administration >
+  Utilisateurs corrige une faute de frappe ou suit un changement de nom. Mot de passe, adresse,
+  tickets et session en cours ne changent pas ; le journal d'audit garde l'ancienne et la
+  nouvelle valeur. Mêmes droits que pour le rôle : un administrateur ne modifie pas un compte
+  administrateur.
 - Le mot de passe ne peut être ni l'identifiant ni l'adresse e-mail.
 - Le jour où la connexion par l'ENT sera possible (contrainte C1), l'identifiant pourra être
-  celui de l'ENT ; l'e-mail restera l'adresse de notification.
+  celui de l'ENT.
+
+### Adresse e-mail
+
+- **Première connexion** : avec le mot de passe provisoire remis par l'administrateur, la
+  personne choisit son nouveau mot de passe **et** son adresse e-mail. Un lien de confirmation
+  (valable 48 heures) y est envoyé ; l'adresse n'est enregistrée qu'une fois ce lien ouvert.
+  Une faute de frappe ne peut donc pas envoyer les e-mails chez un inconnu.
+- **Usage** : notifications des tickets et lien « mot de passe oublié ». Tant qu'aucune adresse
+  n'est confirmée, aucun e-mail n'est envoyé à la personne et un bandeau l'invite à en ajouter une.
+- **Changement** : dans « Mon compte », avec le mot de passe actuel et un nouveau lien de
+  confirmation. L'ancienne adresse est prévenue du changement.
+- **Domaines** : `security.email_domains` peut restreindre les adresses acceptées, par exemple
+  `['ac-versailles.fr']`, pour que les e-mails restent dans l'établissement (§2.3.1). Vide par
+  défaut : toute adresse est acceptée.
+
+**Base créée avant ce changement** : importer une fois `database/migration_adresse_email.sql`.
+L'adresse devient facultative et la table des liens envoyés est créée ; les adresses déjà
+enregistrées sont conservées. L'importer deux fois est sans risque.
 
 **Base créée avant ce changement** : importer une fois `database/migration_identifiants.sql`
 (phpMyAdmin > Importer). Chaque compte reçoit comme identifiant la partie de son adresse avant
@@ -246,7 +265,7 @@ volé ne peut donc pas en créer d'autres. Il se crée, ou se récupère si son 
 perdu, avec un accès au serveur :
 
 ```bash
-php scripts/superadmin.php sophie.lambert sophie.lambert@ac-versailles.fr Sophie Lambert   # crée le compte
+php scripts/superadmin.php sophie.lambert Sophie Lambert          # crée le compte
 php scripts/superadmin.php sophie.lambert                       # compte existant : rôle + nouveau mot de passe
 php scripts/superadmin.php sophie.lambert --fonction="Direction"   # fixe aussi la fonction
 ```
@@ -262,11 +281,18 @@ poste MAMP, réimporter ensuite `database/mamp_setup.sql` ajoute le compte de d�
 
 ### Mot de passe oublié
 
-Le lien **« Mot de passe oublié ? »** de la page de connexion ouvre un formulaire : l'identifiant
-(ou l'adresse e-mail) du compte et, si on le souhaite, où joindre la personne (salle, poste téléphonique).
-Le portail n'envoie **jamais** de mot de passe ni de lien de réinitialisation par e-mail :
-la demande prévient les administrateurs, qui vérifient l'identité de la personne, de vive voix
-ou par téléphone, puis lui remettent un mot de passe provisoire.
+Le lien **« Mot de passe oublié ? »** de la page de connexion demande l'identifiant (ou l'adresse
+confirmée) et envoie à l'adresse confirmée du compte un **lien pour choisir un nouveau mot de
+passe**. Le portail n'envoie jamais de mot de passe par e-mail.
+
+- **Le lien** est valable 1 heure (`security.reset_link_minutes`) et ne sert qu'une fois ; un
+  nouveau lien annule le précédent ; 3 liens par heure au plus pour un compte. La base ne garde
+  que l'empreinte SHA-256 du jeton. Une fois le mot de passe changé, un e-mail d'avertissement
+  part à la personne, et une éventuelle demande à l'administrateur est close.
+- **Même réponse** que l'identifiant existe ou non : la page ne permet pas de savoir qui a un compte.
+- **Sans adresse confirmée**, ou depuis le lien « Plus accès à votre messagerie ? » (page
+  `/password/admin`), la demande est transmise aux administrateurs. Ils vérifient l'identité de
+  la personne, de vive voix ou par téléphone, puis lui remettent un mot de passe provisoire :
 
 - **Qui est prévenu** : par e-mail, chaque administrateur qui a le droit de réinitialiser ce
   mot de passe (les administrateurs et le superadministrateur pour un enseignant ou un
@@ -287,7 +313,7 @@ ou par téléphone, puis lui remettent un mot de passe provisoire.
 - **Journal d'audit** : chaque demande (adresse inconnue comprise), chaque demande ignorée et
   chaque réinitialisation « suite à une demande ».
 
-**Base créée avant ce changement** : importer une fois `database/migration_demandes_mdp.sql`
+**Base créée avant les demandes à l'administrateur** : importer une fois `database/migration_demandes_mdp.sql`
 (phpMyAdmin > Importer). Elle crée la table des demandes sans toucher au reste ; l'importer deux
 fois est sans risque.
 
@@ -318,7 +344,7 @@ Les transitions sont définies dans `Ticket::TRANSITIONS` et vérifiées côté 
 | CSRF | Jeton sur tous les formulaires POST, vérifié par le routeur ; cookie SameSite | `Core/Csrf.php`, `Core/Router.php` |
 | Vol de mots de passe | Hachage Argon2id (BCrypt en repli), re-hachage automatique | `Core/Auth.php` |
 | Force brute | Verrouillage 15 min après 5 échecs ; message d'erreur identique pour tous les cas | `Core/Auth.php`, `Models/User.php` |
-| Mot de passe oublié | Aucun mot de passe par e-mail : remise par un administrateur après vérification d'identité ; réponse identique pour une adresse inconnue ; 5 demandes par heure et par poste | `Controllers/AuthController.php`, `Models/PasswordRequest.php` |
+| Mot de passe oublié | Lien d'une heure à usage unique vers l'adresse confirmée, jeton stocké haché (SHA-256) ; en secours, remise par un administrateur après vérification d'identité ; réponse identique pour une adresse inconnue ; 5 demandes par heure et par poste | `Controllers/AuthController.php`, `Models/PasswordRequest.php` |
 | Vol de session | Cookie HttpOnly et SameSite, nouvel identifiant à la connexion, expiration après 30 min | `Core/Session.php` |
 | Élévation de privilèges | Rôle relu en base à chaque requête, contrôle par route et par ticket | `Core/Router.php`, `Models/Ticket.php` |
 | Fichier malveillant | Type vérifié sur le contenu, liste blanche, nom aléatoire, stockage hors racine web | `Models/Attachment.php` |

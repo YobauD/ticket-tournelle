@@ -6,8 +6,8 @@
 --  2. Lieux d'exemple
 --  3. Comptes de démonstration, identifiants : superadmin, admin, tech1, tech2,
 --     prof, teacher et direction (un compte Utilisateur de fonction Direction),
---     mot de passe provisoire : Provisoire-2026A
---     (à changer à la première connexion)
+--     mot de passe provisoire : Provisoire-2026A, sans adresse e-mail : à la
+--     première connexion, chacun choisit son mot de passe et son adresse
 --
 --  Réservé au poste de développement : ne pas importer sur le serveur du lycée.
 -- =====================================================================
@@ -51,20 +51,20 @@ INSERT IGNORE INTO locations (name) VALUES
 --     Le mot de passe est stocké haché (BCrypt), jamais en clair.
 --     must_change_password = 1 : changement imposé à la première connexion.
 -- ---------------------------------------------------------------------
---     On se connecte avec l'identifiant (prof, admin…) ; l'adresse e-mail ne sert
---     qu'aux notifications.
-INSERT IGNORE INTO users (role_id, username, last_name, first_name, email, password_hash, tech_level, lang, must_change_password)
-SELECT r.id, SUBSTRING_INDEX(d.email, '@', 1), d.last_name, d.first_name, d.email,
+--     On se connecte avec l'identifiant (prof, admin…). Pas d'adresse e-mail :
+--     la personne la choisit et la confirme à sa première connexion.
+INSERT IGNORE INTO users (role_id, username, last_name, first_name, password_hash, tech_level, lang, must_change_password)
+SELECT r.id, d.username, d.last_name, d.first_name,
        '$2y$10$WzYO63cAbvJXb973WhKSBOrzpEpyzj4sxhx3VfEBQT/1M2Crma8ai',
        d.tech_level, d.lang, 1
   FROM (
-        SELECT 'superadmin' AS role, 'Moreau' AS last_name, 'Claire' AS first_name, 'superadmin@latournelle.local' AS email, NULL AS tech_level, 'fr' AS lang
-        UNION ALL SELECT 'admin', 'Admin', 'Alice', 'admin@latournelle.local', NULL, 'fr'
-        UNION ALL SELECT 'technician', 'Martin', 'Karim',  'tech1@latournelle.local',   1,    'fr'
-        UNION ALL SELECT 'technician', 'Leroy',  'Sophie', 'tech2@latournelle.local',   2,    'fr'
-        UNION ALL SELECT 'user',       'Dupont', 'Marie',  'prof@latournelle.local',    NULL, 'fr'
-        UNION ALL SELECT 'user',       'Smith',  'John',   'teacher@latournelle.local', NULL, 'en'
-        UNION ALL SELECT 'user',       'Lambert', 'Sophie', 'direction@latournelle.local', NULL, 'fr'
+        SELECT 'superadmin' AS role, 'superadmin' AS username, 'Moreau' AS last_name, 'Claire' AS first_name, NULL AS tech_level, 'fr' AS lang
+        UNION ALL SELECT 'admin',      'admin',     'Admin',   'Alice',  NULL, 'fr'
+        UNION ALL SELECT 'technician', 'tech1',     'Martin',  'Karim',  1,    'fr'
+        UNION ALL SELECT 'technician', 'tech2',     'Leroy',   'Sophie', 2,    'fr'
+        UNION ALL SELECT 'user',       'prof',      'Dupont',  'Marie',  NULL, 'fr'
+        UNION ALL SELECT 'user',       'teacher',   'Smith',   'John',   NULL, 'en'
+        UNION ALL SELECT 'user',       'direction', 'Lambert', 'Sophie', NULL, 'fr'
        ) d
   JOIN roles r ON r.code = d.role;
 
@@ -74,14 +74,14 @@ SELECT r.id, SUBSTRING_INDEX(d.email, '@', 1), d.last_name, d.first_name, d.emai
 -- ---------------------------------------------------------------------
 UPDATE users u
   JOIN (
-        SELECT 'superadmin@latournelle.local' AS email, 'Direction' AS fonction
-        UNION ALL SELECT 'admin@latournelle.local',     'Référent numérique'
-        UNION ALL SELECT 'tech1@latournelle.local',     'Référent numérique'
-        UNION ALL SELECT 'tech2@latournelle.local',     'Référent numérique'
-        UNION ALL SELECT 'prof@latournelle.local',      'Professeur'
-        UNION ALL SELECT 'teacher@latournelle.local',   'Professeur'
-        UNION ALL SELECT 'direction@latournelle.local', 'Direction'
-       ) d ON d.email = u.email
+        SELECT 'superadmin' AS username, 'Direction' AS fonction
+        UNION ALL SELECT 'admin',     'Référent numérique'
+        UNION ALL SELECT 'tech1',     'Référent numérique'
+        UNION ALL SELECT 'tech2',     'Référent numérique'
+        UNION ALL SELECT 'prof',      'Professeur'
+        UNION ALL SELECT 'teacher',   'Professeur'
+        UNION ALL SELECT 'direction', 'Direction'
+       ) d ON d.username = u.username
   JOIN job_titles j ON j.label_fr = d.fonction
    SET u.job_title_id = j.id
  WHERE u.job_title_id IS NULL;

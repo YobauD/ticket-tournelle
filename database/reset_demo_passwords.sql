@@ -5,7 +5,7 @@
 --  le mot de passe d'un compte de démonstration. Ne touche ni aux tickets
 --  ni aux autres comptes.
 --
---  Les 7 comptes @latournelle.local reprennent le mot de passe provisoire
+--  Les 7 comptes de démonstration (prof, admin…) reprennent le mot de passe provisoire
 --  Provisoire-2026A, à changer à la première connexion. Leur blocage après
 --  5 essais est levé et ils sont réactivés s'ils avaient été désactivés.
 --
@@ -21,19 +21,11 @@ UPDATE users
        failed_attempts      = 0,
        locked_until         = NULL,
        is_active            = 1
- WHERE email IN (
-       'superadmin@latournelle.local',
-       'admin@latournelle.local',
-       'tech1@latournelle.local',
-       'tech2@latournelle.local',
-       'prof@latournelle.local',
-       'teacher@latournelle.local',
-       'direction@latournelle.local'
- );
+ WHERE username IN ('superadmin', 'admin', 'tech1', 'tech2', 'prof', 'teacher', 'direction');
 
 -- Comptes remis à zéro (doit afficher 7 lignes ; moins si un compte n'existe pas encore :
 -- importer alors database/mamp_setup.sql, qui le crée)
-SELECT email, must_change_password AS a_changer, is_active AS actif
+SELECT username, must_change_password AS a_changer, is_active AS actif
   FROM users
- WHERE email LIKE '%@latournelle.local'
+ WHERE username IN ('superadmin', 'admin', 'tech1', 'tech2', 'prof', 'teacher', 'direction')
  ORDER BY id;

@@ -15,6 +15,9 @@ $user = Auth::user();
 
 // Demandes « mot de passe oublié » qu'un administrateur peut traiter : pastille sur « Administration »
 $pendingRequests = Auth::isAdmin() ? PasswordRequest::countFor($user) : 0;
+
+// Pas encore d'adresse e-mail confirmée : ni notifications ni lien « mot de passe oublié »
+$emailMissing = $user !== null && $user['email'] === null && (int) $user['must_change_password'] === 0;
 $path = (string) parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH);
 
 // Entrée de menu à surligner. Un technicien qui ouvre un ticket vient de la file d'attente.
@@ -110,6 +113,12 @@ $menu = [
 
 <main class="page" id="main">
     <?= View::render('partials/flash') ?>
+    <?php if ($emailMissing && $active !== '/account'): ?>
+        <div class="alert alert-action" role="status">
+            <?= e(t('account.banner_no_email')) ?>
+            <a href="<?= e(url('/account#email')) ?>"><?= e(t('account.banner_link')) ?></a>
+        </div>
+    <?php endif; ?>
     <?= $content ?>
 </main>
 <?php if ($user !== null): ?>

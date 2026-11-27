@@ -193,6 +193,9 @@ a:hover { color: var(--brand-dark); }
 .tag { display: inline-block; padding: 0 0.375rem; border: 1px solid var(--line-strong); border-radius: 3px; font-size: 0.6875rem; font-weight: 600; color: var(--muted); }
 .tag-internal { border-color: var(--warn); color: var(--warn); }
 .tag-strong { border-color: var(--brand); background: var(--brand-tint); color: var(--brand-dark); }
+.tag-ok { border-color: var(--ok); background: var(--ok-tint); color: var(--ok); }
+/* Petit formulaire d'un seul bouton, à la suite d'un texte (« Renvoyer le lien ») */
+.inline-form { display: inline-block; margin-left: 0.5rem; vertical-align: middle; }
 /* Comptes gérés par un niveau supérieur : lecture seule, avec la raison */
 .table tr.is-readonly td { background: #FAFBFB; }
 .lock-note { display: inline-block; max-width: 16rem; color: var(--muted); font-size: 0.8125rem; text-align: right; white-space: normal; }

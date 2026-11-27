@@ -21,14 +21,14 @@ return [
                 'keywords' => ['se connecter', 'connecter', 'identifiant', 'login', 'accéder au portail', 'accès'],
                 'q'  => 'Comment me connecter au portail ?',
                 'a'  => [
-                    ['p', 'Saisissez votre identifiant (par exemple marie.dupont) et le mot de passe que vous a remis un référent numérique, puis cliquez sur « Se connecter ». Votre adresse e-mail ENT ne sert qu’à recevoir les notifications.'],
+                    ['p', 'Saisissez votre identifiant (par exemple marie.dupont) et le mot de passe que vous a remis un référent numérique, puis cliquez sur « Se connecter ».'],
                     ['p', 'Le bouton en forme d’œil, dans le champ du mot de passe, affiche ce que vous tapez : pratique pour repérer une faute de frappe.'],
                     ['note', 'Par sécurité, vous êtes déconnecté après 30 minutes sans activité, et un formulaire non envoyé est alors perdu. Envoyez votre déclaration avant de vous absenter.'],
                 ],
             ],
             [
                 'id' => 'premiere-connexion',
-                'keywords' => ['première fois', 'mot de passe provisoire', 'nouveau compte', 'activer mon compte'],
+                'keywords' => ['première fois', 'mot de passe provisoire', 'nouveau compte', 'activer mon compte', 'adresse e-mail', 'confirmer mon adresse'],
                 'q'  => 'C’est ma première connexion : que dois-je faire ?',
                 'a'  => [
                     ['p', 'Votre mot de passe de départ est provisoire. Le portail vous demande d’en choisir un nouveau avant d’aller plus loin. Il doit contenir :'],
@@ -37,6 +37,7 @@ return [
                         'au moins une minuscule, une majuscule et un chiffre.',
                     ]],
                     ['p', 'Il doit aussi être différent de votre identifiant, de votre adresse e-mail et du mot de passe provisoire.'],
+                    ['p', 'Indiquez aussi votre adresse e-mail : vous y recevrez les notifications de vos tickets et, si vous oubliez votre mot de passe, un lien pour en choisir un nouveau. Un lien de confirmation y est envoyé ; ouvrez-le pour activer l’adresse. Vous pourrez la changer ensuite dans « Mon compte ».'],
                     ['note', 'Astuce : trois mots sans rapport entre eux, reliés par des tirets et complétés d’un chiffre, donnent un mot de passe facile à retenir et difficile à deviner.'],
                 ],
             ],
@@ -46,8 +47,8 @@ return [
                 'q'  => 'J’ai oublié mon mot de passe, ou mon compte est bloqué',
                 'a'  => [
                     ['p', 'Après 5 essais erronés, le compte est bloqué pendant 15 minutes : c’est une protection contre les tentatives d’intrusion. Patientez, puis réessayez.'],
-                    ['p', 'Si vous avez oublié votre mot de passe, cliquez sur « Mot de passe oublié ? » sur la page de connexion, puis saisissez votre identifiant (ou votre adresse e-mail ENT si vous l’avez oublié). Vous pouvez indiquer où vous joindre (salle, poste téléphonique).'],
-                    ['p', 'Un administrateur est prévenu. Après avoir vérifié votre identité, il vous remet un mot de passe provisoire, en main propre ou par téléphone ; vous le changez à la connexion suivante. Si vous retrouvez votre mot de passe entre-temps, connectez-vous normalement : la demande est annulée.'],
+                    ['p', 'Si vous avez oublié votre mot de passe, cliquez sur « Mot de passe oublié ? » sur la page de connexion, puis saisissez votre identifiant. Vous recevez à votre adresse e-mail confirmée un lien pour choisir un nouveau mot de passe : il est valable une heure et ne sert qu’une fois.'],
+                    ['p', 'Plus accès à votre messagerie, ou pas encore d’adresse confirmée ? Un administrateur est prévenu : après avoir vérifié votre identité, il vous remet un mot de passe provisoire, en main propre ou par téléphone. Si vous retrouvez votre mot de passe entre-temps, connectez-vous normalement : la demande est annulée.'],
                     ['warn', 'Personne au lycée ne vous demandera votre mot de passe, ni par e-mail, ni par téléphone. Ne le communiquez jamais.'],
                 ],
             ],

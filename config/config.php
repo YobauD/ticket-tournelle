@@ -39,6 +39,12 @@ $config = [
         'lockout_minutes'     => 15,
         'password_min_length' => 12,     // recommandation ANSSI pour un mot de passe seul
         'reset_requests_per_hour' => 5,  // demandes « mot de passe oublié » par heure depuis un même poste
+        'reset_link_minutes'   => 60,    // validité d'un lien « nouveau mot de passe »
+        'reset_links_per_hour' => 3,     // liens envoyés au plus par heure pour un même compte
+        'verify_link_hours'    => 48,    // validité d'un lien de confirmation d'adresse
+        // Domaines acceptés pour l'adresse e-mail choisie par la personne, par exemple ['ac-versailles.fr'].
+        // Vide : toute adresse. Restreindre garde les e-mails dans l'établissement (§2.3.1).
+        'email_domains'        => [],
     ],
 
     'uploads' => [
