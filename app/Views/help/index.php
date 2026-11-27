@@ -7,7 +7,6 @@
  * Chaque question est un <details> : elle s'ouvre et se ferme sans JavaScript.
  * Avec JavaScript, le champ de recherche filtre les questions (assets/js/app.js).
  */
-use App\Core\Auth;
 use App\Services\FaqBot;
 
 /** Texte échappé, où [[Ctrl]] devient une touche de clavier <kbd>. */
@@ -15,10 +14,10 @@ $text = static fn (string $value): string => preg_replace('/\[\[(.+?)\]\]/', '<k
 
 /** Lien « Le problème persiste ? » vers le formulaire prérempli (même règle que l'assistant). */
 $persistLink = static function (array $ticket) use ($categories, $priorities): string {
-    $link = FaqBot::ticketLink($ticket, $categories, $priorities, Auth::check());
+    $link = FaqBot::ticketLink($ticket, $categories, $priorities);
 
     return '<p class="faq-persist"><span>' . e(t('help.persist')) . '</span> '
-         . '<a href="' . e($link['href']) . '">' . e(Auth::check() ? t('ticket.new') : t('bot.login_to_declare')) . '</a>'
+         . '<a href="' . e($link['href']) . '">' . e(t('ticket.new')) . '</a>'
          . ($link['detail'] !== '' ? ' <span class="muted">(' . e($link['detail']) . ')</span>' : '')
          . '</p>';
 };
@@ -90,6 +89,6 @@ $persistLink = static function (array $ticket) use ($categories, $priorities): s
 
     <div class="empty" data-faq-empty hidden>
         <p><?= e(t('help.no_result')) ?></p>
-        <a class="btn btn-primary" href="<?= e(url(Auth::check() ? '/tickets/new' : '/login')) ?>"><?= e(t('ticket.new')) ?></a>
+        <a class="btn btn-primary" href="<?= e(url('/tickets/new')) ?>"><?= e(t('ticket.new')) ?></a>
     </div>
 </div>

@@ -39,5 +39,4 @@ use App\Core\View;
         'attempts' => Config::get('security.max_login_attempts'),
         'minutes'  => Config::get('security.lockout_minutes'),
     ])) ?></p>
-    <p class="hint"><a href="<?= e(url('/help')) ?>"><?= e(t('help.open')) ?></a></p>
 </section>
