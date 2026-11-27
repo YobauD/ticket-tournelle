@@ -28,7 +28,7 @@ use App\Core\View;
         <span><?= e(Config::get('app.name')) ?></span>
     </a>
     <?= $content ?>
-    <p class="auth-foot"><?= e(t('app.school')) ?></p>
+    <p class="auth-foot"><?= e(t('app.school')) ?><br><a href="<?= e(url('/privacy')) ?>"><?= e(t('privacy.link')) ?></a></p>
 </main>
 <?php if (Auth::check()): ?>
     <?= View::render('partials/chatbot') ?>

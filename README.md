@@ -26,9 +26,10 @@ ticket-tournelle/
 │   │                       Priority, Status, Log
 │   ├── Services/           Notifier (e-mails bilingues), FaqBot (assistant d'aide),
 │   │                       AccountPolicy (qui peut gérer quel compte),
-│   │                       LoginThrottle (limites des tentatives de connexion)
+│   │                       LoginThrottle (limites des tentatives de connexion),
+│   │                       DataRetention (durées de conservation RGPD)
 │   ├── Views/              layouts/, partials/, auth/, tickets/, technician/,
-│   │                       admin/, stats/, help/, emails/, errors/
+│   │                       admin/, stats/, help/, privacy/, emails/, errors/
 │   └── Lang/               fr.php, en.php, help_fr.php, help_en.php (contenu de l'aide)
 ├── .htaccess               Redirige vers public/ quand le projet est dans un sous-dossier (MAMP)
 ├── config/                 config.php, config.local.php (MAMP), config.local.example.php, routes.php
@@ -40,8 +41,9 @@ ticket-tournelle/
 │                           migration_adresse_email.sql (adresse choisie par la personne, pour une base existante),
 │                           migration_securite.sql (renforcement de la connexion, pour une base existante),
 │                           migration_superadmin.sql (ajout du rôle à une base existante),
+│                           migration_rgpd.sql (date de désactivation des comptes, pour une base existante),
 │                           reset_demo_passwords.sql (remet Provisoire-2026A aux comptes de démonstration)
-├── scripts/                seed.php, auto_close.php, backup.sh, test_assistant.php,
+├── scripts/                seed.php, auto_close.php, purge.php (RGPD), backup.sh, test_assistant.php,
 │                           superadmin.php (création et secours du superadministrateur)
 └── storage/                uploads/ (pièces jointes), logs/ — hors racine web
 ```
@@ -158,6 +160,7 @@ et son adresse.
 ```
 # /etc/cron.d/ticket-tournelle
 0 6 * * * www-data php /var/www/ticket-tournelle/scripts/auto_close.php >> /var/www/ticket-tournelle/storage/logs/cron.log 2>&1
+0 3 * * * www-data php /var/www/ticket-tournelle/scripts/purge.php >> /var/www/ticket-tournelle/storage/logs/cron.log 2>&1
 0 2 * * * root /var/www/ticket-tournelle/scripts/backup.sh >> /var/log/ticket-tournelle-backup.log 2>&1
 ```
 
@@ -374,6 +377,46 @@ qu'à ce proxy), sans quoi 20 erreurs bloqueraient tout le monde.
 (version de session des comptes, index du journal par adresse IP).
 
 **Reste à décider** : la double authentification des comptes administrateurs.
+
+## Données personnelles (RGPD)
+
+**Information des personnes (article 13).** La page `/privacy`, « Données personnelles », est
+lisible sans compte : un lien est en pied de chaque page, sur l'écran de connexion et sous le champ
+de l'adresse e-mail. Elle présente le responsable du traitement, la finalité, les données, qui y a
+accès, les durées de conservation, les droits et le seul cookie utilisé. Ses durées sont lues dans
+`config.php` : elles restent toujours celles qu'applique la purge. Le contact du délégué à la
+protection des données de l'académie se renseigne dans `privacy.dpo_contact` ; tant qu'il est vide,
+la page renvoie vers la direction du lycée.
+
+**Limitation de la conservation (article 5.1.e).** `scripts/purge.php`, lancé chaque nuit par cron
+(voir « Tâches planifiées »), supprime ce qui a dépassé sa durée. Les durées se règlent dans
+`config.php`, section `retention`, et sont à faire valider par le chef d'établissement :
+
+| Données | Durée par défaut | Traitement |
+|---|---|---|
+| Journal : connexions, mots de passe, refus d'accès | 12 mois | lignes supprimées |
+| Journal : actions d'administration (§2.3.2) | 36 mois | lignes supprimées ; adresse IP effacée dès 12 mois |
+| Tickets clôturés ou rejetés | 36 mois après la clôture | supprimés avec échanges, historique et pièces jointes (fichiers compris) |
+| Comptes désactivés | 12 mois après la désactivation | anonymisés : nom, identifiant, adresse e-mail et fonction effacés, mot de passe inutilisable |
+| Demandes de mot de passe traitées ou ignorées | 3 mois | supprimées (celles en attente restent) |
+| Liens envoyés par e-mail | 7 jours après utilisation ou expiration | supprimés |
+| Fichiers déposés sans ticket | 1 jour | supprimés |
+| `storage/logs/mail.log` (pilote `log`) | 30 jours | e-mails retirés du fichier |
+
+Un compte anonymisé reste en base sous l'identifiant `ancien-compte-<n°>`, pour que les tickets
+encore conservés et le journal gardent un auteur sans plus désigner personne. Les comptes
+superadministrateur, gérés sur le serveur, ne sont jamais anonymisés. Dans l'écran des comptes,
+un compte désactivé affiche la date à laquelle ses données seront effacées ; le réactiver avant
+cette date annule l'effacement. Chaque passage utile de la purge est inscrit au journal
+(« Purge des données anciennes »).
+
+```bash
+php scripts/purge.php --simulation   # affiche ce qui serait supprimé, sans rien modifier
+php scripts/purge.php                # applique la purge
+```
+
+**Base créée avant ce changement** : importer une fois `database/migration_rgpd.sql` (date de
+désactivation des comptes ; les comptes déjà désactivés partent de la date d'import).
 
 ## Ajouter une langue
 

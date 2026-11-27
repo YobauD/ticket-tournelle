@@ -15,7 +15,7 @@ final class Router
     /** Pages accessibles même si le changement de mot de passe est imposé. */
     // Pages ouvertes pendant le changement de mot de passe imposé. L'aide en fait partie :
     // sa fiche « Première connexion » explique les règles du nouveau mot de passe.
-    private const PASSWORD_CHANGE_EXEMPT = ['/account', '/logout', '/lang', '/help', '/help/ask'];
+    private const PASSWORD_CHANGE_EXEMPT = ['/account', '/logout', '/lang', '/help', '/help/ask', '/privacy'];
 
     public function __construct(
         private readonly array $routes,

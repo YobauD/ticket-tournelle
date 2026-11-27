@@ -86,7 +86,8 @@ $emailValue = $old['email'] ?? ($user['email'] ?? $pending ?? '');
                     <label for="email"><?= e(t('auth.email')) ?></label>
                     <input type="email" id="email" name="email" value="<?= e($emailValue) ?>" maxlength="190"
                            autocomplete="email" required aria-describedby="email_hint<?= isset($errors['email']) ? ' email_error' : '' ?>">
-                    <p class="hint" id="email_hint"><?= e(t('account.email_hint', ['hours' => $hours])) ?></p>
+                    <p class="hint" id="email_hint"><?= e(t('account.email_hint', ['hours' => $hours])) ?>
+                        <a href="<?= e(url('/privacy')) ?>"><?= e(t('privacy.more')) ?></a></p>
                     <?= $fieldError('email') ?>
                 </div>
             <?php endif; ?>
@@ -98,7 +99,8 @@ $emailValue = $old['email'] ?? ($user['email'] ?? $pending ?? '');
     <?php if (!$firstTime): ?>
         <section class="card" id="email">
             <h2><?= e(t('account.email_title')) ?></h2>
-            <p class="hint"><?= e(t('account.email_hint', ['hours' => $hours])) ?></p>
+            <p class="hint"><?= e(t('account.email_hint', ['hours' => $hours])) ?>
+                <a href="<?= e(url('/privacy')) ?>"><?= e(t('privacy.more')) ?></a></p>
 
             <?php if ($pending !== null): ?>
                 <div class="alert alert-info" role="status">

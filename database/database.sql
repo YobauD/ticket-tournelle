@@ -124,6 +124,8 @@ CREATE TABLE users (
     lang             CHAR(2)          NOT NULL DEFAULT 'fr',
     must_change_password TINYINT(1)   NOT NULL DEFAULT 0,
     is_active        TINYINT(1)       NOT NULL DEFAULT 1,
+    deactivated_at   DATETIME         NULL,       -- date de désactivation : le compte est anonymisé
+                                                  -- après la durée retention.disabled_accounts_months
     failed_attempts  TINYINT UNSIGNED NOT NULL DEFAULT 0,
     locked_until     DATETIME         NULL,
     session_version  INT UNSIGNED     NOT NULL DEFAULT 0,   -- +1 à chaque changement de mot de passe :

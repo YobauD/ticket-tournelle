@@ -28,6 +28,7 @@ $active = match (true) {
     str_starts_with($path, url('/queue'))                                    => '/queue',
     Auth::isStaff() && preg_match('#/tickets/\d+#', $path) === 1            => '/queue',
     str_starts_with($path, url('/tickets'))                                  => '/tickets',
+    str_starts_with($path, url('/privacy'))                                  => '/privacy',
     default                                                                  => '',
 };
 
@@ -121,6 +122,10 @@ $menu = [
     <?php endif; ?>
     <?= $content ?>
 </main>
+<footer class="site-foot">
+    <span><?= e(t('app.school')) ?></span>
+    <a href="<?= e(url('/privacy')) ?>"<?= $active === '/privacy' ? ' aria-current="page"' : '' ?>><?= e(t('privacy.link')) ?></a>
+</footer>
 <?php if ($user !== null): ?>
     <?= View::render('partials/chatbot') ?>
 <?php endif; ?>

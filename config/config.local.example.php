@@ -15,4 +15,6 @@ return [
     'mail' => [
         'driver' => 'log',
     ],
+    // Sur le serveur du lycée : contact du délégué à la protection des données (page « Données personnelles »)
+    // 'privacy' => ['dpo_contact' => 'adresse-du-dpd@exemple.fr'],
 ];
