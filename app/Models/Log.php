@@ -8,7 +8,8 @@ use App\Core\Database;
 
 /**
  * Journal d'audit : trace des actions sensibles (contrainte C5).
- * Les lignes ne sont jamais modifiées ni supprimées par l'application.
+ * Les pages du site ne modifient ni ne suppriment jamais une ligne. Seul le script de nuit
+ * scripts/purge.php efface les lignes trop anciennes (durées de conservation du RGPD).
  */
 final class Log
 {
@@ -35,6 +36,18 @@ final class Log
     // ------------------------------------------------------------------
     //  Consultation (écran d'administration, lecture seule)
     // ------------------------------------------------------------------
+
+    /**
+     * Actions d'administration : conservées plus longtemps que les connexions (§2.3.2 du cahier
+     * des charges, traçabilité en cas d'incident). Toutes les autres actions suivent la durée
+     * retention.connection_logs_months.
+     */
+    public const AUDIT_ACTIONS = [
+        'user_created', 'user_enabled', 'user_disabled', 'role_changed', 'level_changed',
+        'identity_changed', 'job_title_changed', 'password_reset', 'password_request_dismissed',
+        'category_created', 'category_updated', 'location_created', 'location_updated', 'location_merged',
+        'job_title_created', 'job_title_updated', 'account_anonymized', 'data_purged',
+    ];
 
     /** Actions de sécurité, mises en évidence dans l'écran du journal. */
     public const SECURITY_ACTIONS = ['login_failed', 'login_blocked', 'login_throttled', 'account_locked', 'password_request_unknown'];

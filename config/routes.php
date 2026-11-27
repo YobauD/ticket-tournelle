@@ -15,6 +15,7 @@ use App\Controllers\AuditController;
 use App\Controllers\AuthController;
 use App\Controllers\HelpController;
 use App\Controllers\LangController;
+use App\Controllers\PrivacyController;
 use App\Controllers\ReferenceController;
 use App\Controllers\StatsController;
 use App\Controllers\TechnicianController;
@@ -37,6 +38,7 @@ return [
     ['GET',  '/password/admin',  [AuthController::class, 'showAdminRequest'], null],   // secours : demande à un administrateur
     ['POST', '/password/admin',  [AuthController::class, 'adminRequest'],     null],
     ['POST', '/lang',   [LangController::class, 'switch'],    null],
+    ['GET',  '/privacy', [PrivacyController::class, 'index'], null],   // données personnelles : lisible sans compte
     ['GET',  '/help',   [HelpController::class, 'index'],     ALL],    // aide : réservée aux personnes connectées
     ['POST', '/help/ask', [HelpController::class, 'ask'],     ALL],    // assistant d'aide (réponses JSON)
     ['GET',  '/account',          [AccountController::class, 'show'],           ALL],

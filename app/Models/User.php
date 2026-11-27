@@ -146,9 +146,14 @@ final class User
 
     public static function updateAccess(int $id, int $roleId, ?int $techLevel, bool $isActive): void
     {
+        // deactivated_at : date de la désactivation (gardée si le compte l'était déjà), effacée à la réactivation.
+        // Elle fixe la date d'anonymisation du compte (scripts/purge.php).
         Database::query(
-            'UPDATE users SET role_id = ?, tech_level = ?, is_active = ? WHERE id = ?',
-            [$roleId, $techLevel, (int) $isActive, $id]
+            'UPDATE users
+                SET role_id = ?, tech_level = ?, is_active = ?,
+                    deactivated_at = IF(? = 1, NULL, COALESCE(deactivated_at, NOW()))
+              WHERE id = ?',
+            [$roleId, $techLevel, (int) $isActive, (int) $isActive, $id]
         );
     }
 

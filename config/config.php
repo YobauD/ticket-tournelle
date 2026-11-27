@@ -73,6 +73,28 @@ $config = [
     'tickets' => [
         'auto_close_days' => 7,          // clôture automatique d'un ticket résolu
     ],
+
+    // Durées de conservation des données personnelles (RGPD, article 5.1.e).
+    // Appliquées chaque nuit par scripts/purge.php et affichées sur la page « Données personnelles ».
+    // Valeurs proposées d'après les recommandations de la CNIL ; à faire valider par le chef d'établissement.
+    'retention' => [
+        'connection_logs_months'   => 12,  // journal : connexions, mots de passe, refus d'accès (avec l'adresse IP)
+        'audit_logs_months'        => 36,  // journal : actions d'administration (§2.3.2) ; leur adresse IP est
+                                           // effacée dès connection_logs_months
+        'closed_tickets_months'    => 36,  // tickets clôturés ou rejetés, avec échanges, historique et pièces jointes
+        'disabled_accounts_months' => 12,  // comptes désactivés : nom, identifiant et adresse e-mail effacés ensuite
+        'password_requests_months' => 3,   // demandes de mot de passe traitées ou ignorées
+        'email_tokens_days'        => 7,   // liens envoyés par e-mail, une fois utilisés ou expirés
+        'mail_log_days'            => 30,  // copies d'e-mails du pilote 'log' (développement)
+    ],
+
+    // Page « Données personnelles » (information des personnes, RGPD article 13)
+    'privacy' => [
+        'controller' => 'Lycée des Métiers La Tournelle, 87 boulevard National, 92250 La Garenne-Colombes',
+        // Adresse du délégué à la protection des données (DPD) de l'académie, à renseigner.
+        // Vide : la page renvoie vers la direction du lycée.
+        'dpo_contact' => '',
+    ],
 ];
 
 $local = __DIR__ . '/config.local.php';

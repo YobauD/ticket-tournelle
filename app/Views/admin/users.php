@@ -13,6 +13,7 @@ use App\Core\Config;
 use App\Core\Lang;
 use App\Core\View;
 use App\Services\AccountPolicy;
+use App\Services\DataRetention;
 
 $min = Config::get('security.password_min_length');
 
@@ -129,6 +130,12 @@ $error = static fn (string $field): string => isset($errors[$field])
                         <strong><?= e(person($user)) ?></strong>
                         <?php if ((int) $user['is_locked'] === 1): ?><span class="badge badge-late"><?= e(t('user.locked')) ?></span><?php endif; ?>
                         <span class="row-meta"><span class="sr-only"><?= e(t('auth.username')) ?> : </span><?= e($user['username']) ?> · <?= $user['email'] !== null ? e($user['email']) : '<em>' . e(t('admin.no_email')) . '</em>' ?></span>
+                        <?php if (DataRetention::isAnonymized($user)): ?>
+                            <span class="row-meta"><?= e(t('admin.erased')) ?></span>
+                        <?php elseif (($erase = DataRetention::anonymizationDate($user)) !== null): ?>
+                            <!-- Compte désactivé : date à laquelle scripts/purge.php effacera nom, identifiant et adresse -->
+                            <span class="row-meta"><?= e(t('admin.erased_on', ['date' => dt($erase, false)])) ?></span>
+                        <?php endif; ?>
                     </td>
 
                     <?php if ($lock !== null): ?>
