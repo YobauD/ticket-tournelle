@@ -71,7 +71,7 @@ $maxTimeline = max([1, ...array_column($timeline, 'count')]);
         <?php else: ?>
             <table class="bars">
                 <thead class="sr-only">
-                    <tr><th scope="col"><?= e(t('ticket.category')) ?></th><th scope="col"></th><th scope="col"><?= e(t('stats.tickets')) ?></th></tr>
+                    <tr><th scope="col"><?= e(t('ticket.category')) ?></th><td></td><th scope="col"><?= e(t('stats.tickets')) ?></th></tr>
                 </thead>
                 <tbody>
                     <?php foreach ($categories as $category): ?>
@@ -95,7 +95,7 @@ $maxTimeline = max([1, ...array_column($timeline, 'count')]);
     <!-- Évolution -->
     <section class="card">
         <h2><?= e(t('stats.timeline')) ?></h2>
-        <div class="columns-wrap">
+        <div class="columns-wrap" tabindex="0" role="region" aria-label="<?= e(t('stats.timeline')) ?>">
             <ol class="columns" aria-label="<?= e(t('stats.timeline')) ?>">
                 <?php foreach ($timeline as $bucket): ?>
                     <?php $h = $bucket['count'] * 100 / $maxTimeline; ?>

@@ -20,7 +20,7 @@ $toDo   = ($counts['pending'] ?? 0) + ($counts['resolved'] ?? 0);
     </div>
 <?php endif; ?>
 
-<nav class="tabs" aria-label="<?= e(t('dashboard.filter')) ?>">
+<nav class="segmented" aria-label="<?= e(t('dashboard.filter')) ?>">
     <?php foreach ($tabs as $key => $count): ?>
         <a href="<?= e(url('/tickets?scope=' . $key)) ?>" <?= $scope === $key ? 'aria-current="true"' : '' ?>>
             <?= e(t('dashboard.tab.' . $key)) ?> <span class="count"><?= (int) $count ?></span>
@@ -43,7 +43,7 @@ $toDo   = ($counts['pending'] ?? 0) + ($counts['resolved'] ?? 0);
                     <th scope="col"><?= e(t('ticket.reference')) ?></th>
                     <th scope="col"><?= e(t('ticket.subject')) ?></th>
                     <th scope="col"><?= e(t('ticket.priority')) ?></th>
-                    <th scope="col"><?= e(t('ticket.status')) ?></th>
+                    <th scope="col"><?= e(t('ticket.progress_short')) ?></th>
                     <th scope="col"><?= e(t('ticket.technician')) ?></th>
                     <th scope="col"><?= e(t('ticket.created_at')) ?></th>
                 </tr>
@@ -59,8 +59,8 @@ $toDo   = ($counts['pending'] ?? 0) + ($counts['resolved'] ?? 0);
                             <span class="row-meta"><?= e(label($ticket, 'category')) ?>, <?= e($ticket['location_name']) ?></span>
                         </td>
                         <td data-label="<?= e(t('ticket.priority')) ?>"><?= priority_badge($ticket) ?></td>
-                        <td data-label="<?= e(t('ticket.status')) ?>">
-                            <?= status_badge($ticket) ?>
+                        <td data-label="<?= e(t('ticket.progress_short')) ?>">
+                            <?= progress_bar($ticket) ?>
                             <?php if (in_array($ticket['status_code'], ['pending', 'resolved'], true)): ?>
                                 <span class="row-meta row-todo"><?= e(t('dashboard.todo.' . $ticket['status_code'])) ?></span>
                             <?php endif; ?>

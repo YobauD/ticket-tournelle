@@ -91,6 +91,33 @@ function status_badge(array $row): string
     return '<span class="badge badge-status-' . e($row['status_code']) . '">' . e(label($row, 'status')) . '</span>';
 }
 
+/**
+ * Barre d'avancement en 4 étapes (Nouveau, En cours, Résolu, Clôturé) pour les listes.
+ * « En attente » reste l'étape « En cours », avec son propre libellé ; un ticket rejeté
+ * garde sa pastille de statut. Le libellé de chaque étape est écrit : la couleur ne porte
+ * jamais seule l'information.
+ */
+function progress_bar(array $row): string
+{
+    $status = (string) $row['status_code'];
+    if ($status === 'rejected') {
+        return status_badge($row);
+    }
+    $steps   = ['new', 'in_progress', 'resolved', 'closed'];
+    $current = array_search($status === 'pending' ? 'in_progress' : $status, $steps, true);
+    $current = $current === false ? 0 : $current;
+
+    $html = '<span class="progress" role="group" aria-label="' . e(t('ticket.progress_label', [
+        'step' => $current + 1, 'label' => label($row, 'status'),
+    ])) . '">';
+    foreach ($steps as $index => $code) {
+        $class = $index < $current ? ' is-done' : ($index === $current ? ' is-current' : '');
+        $text  = $index === $current ? label($row, 'status') : t('ticket.step.' . $code);
+        $html .= '<span class="progress-step' . $class . '" aria-hidden="true">' . e($text) . '</span>';
+    }
+    return $html . '</span>';
+}
+
 /** Indicateur de priorité : un pictogramme de 1 à 4 barres + le libellé (lisible sans la couleur). */
 function priority_badge(array $row): string
 {

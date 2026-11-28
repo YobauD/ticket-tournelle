@@ -84,7 +84,7 @@ $selected = static fn (string $filter, string $value): string => ($filters[$filt
                     <th scope="col"><?= e(t('ticket.priority')) ?></th>
                     <th scope="col"><?= e(t('ticket.subject')) ?></th>
                     <th scope="col"><?= e(t('ticket.location')) ?></th>
-                    <th scope="col"><?= e(t('ticket.status')) ?></th>
+                    <th scope="col"><?= e(t('ticket.progress_short')) ?></th>
                     <th scope="col"><?= e(t('ticket.technician')) ?></th>
                     <th scope="col"><?= e(t('ticket.due_at')) ?></th>
                     <th scope="col"><span class="sr-only"><?= e(t('tech.actions')) ?></span></th>
@@ -102,8 +102,8 @@ $selected = static fn (string $filter, string $value): string => ($filters[$filt
                             </span>
                         </td>
                         <td data-label="<?= e(t('ticket.location')) ?>"><?= e($ticket['location_name']) ?></td>
-                        <td data-label="<?= e(t('ticket.status')) ?>">
-                            <?= status_badge($ticket) ?>
+                        <td data-label="<?= e(t('ticket.progress_short')) ?>">
+                            <?= progress_bar($ticket) ?>
                             <span class="row-meta"><?= e(t('tech.level', ['level' => (int) $ticket['support_level']])) ?></span>
                         </td>
                         <td data-label="<?= e(t('ticket.technician')) ?>">
