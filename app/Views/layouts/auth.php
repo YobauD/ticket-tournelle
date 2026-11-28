@@ -20,7 +20,7 @@ use App\Core\View;
     <script src="<?= e(url('/assets/js/app.js')) ?>" defer></script>
 </head>
 <body class="auth-body">
-<div class="auth-lang"><?= View::render('partials/lang') ?></div>
+<header class="auth-lang"><?= View::render('partials/lang') ?></header>
 
 <main class="auth-shell">
     <a class="brand brand-large" href="<?= e(url('/')) ?>">

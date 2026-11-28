@@ -605,4 +605,12 @@ return [
     'admin.erased' => 'Data erased',
     'audit.action.account_anonymized' => 'Account anonymised (retention period over)',
     'audit.action.data_purged' => 'Old data purged',
+
+    // --- Progress bar in lists ---
+    'ticket.progress_label' => 'Progress: step :step of 4, :label',
+    'ticket.progress_short' => 'Progress',
+    'ticket.step.new' => 'Reported',
+    'ticket.step.in_progress' => 'In progress',
+    'ticket.step.resolved' => 'Fixed',
+    'ticket.step.closed' => 'Closed',
 ];

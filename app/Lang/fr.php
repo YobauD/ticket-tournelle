@@ -608,4 +608,12 @@ return [
     'admin.erased' => 'Données effacées',
     'audit.action.account_anonymized' => 'Compte anonymisé (durée de conservation écoulée)',
     'audit.action.data_purged' => 'Purge des données anciennes',
+
+    // --- Barre d'avancement des listes ---
+    'ticket.progress_label' => 'Avancement : étape :step sur 4, :label',
+    'ticket.progress_short' => 'Avancement',
+    'ticket.step.new' => 'Déclaré',
+    'ticket.step.in_progress' => 'Pris en charge',
+    'ticket.step.resolved' => 'Réparé',
+    'ticket.step.closed' => 'Clôturé',
 ];

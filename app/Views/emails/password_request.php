@@ -15,10 +15,10 @@ $jobTitle = label($target, 'job_title', $locale);
 ?>
 <!DOCTYPE html>
 <html lang="<?= e($locale) ?>">
-<body style="margin:0;padding:24px;background:#F4F6F7;font-family:Arial,Helvetica,sans-serif;color:#16282E;">
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;margin:0 auto;background:#FFFFFF;border:1px solid #DDE4E7;border-radius:8px;">
+<body style="margin:0;padding:24px;background:#F3F4F6;font-family:Arial,Helvetica,sans-serif;color:#1F2328;">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;margin:0 auto;background:#FFFFFF;border:1px solid #E6E8EC;border-radius:8px;">
     <tr>
-        <td style="padding:16px 24px;background:#0B5563;border-radius:8px 8px 0 0;color:#FFFFFF;font-size:16px;font-weight:bold;">
+        <td style="padding:16px 24px;background:#3730A3;border-radius:8px 8px 0 0;color:#FFFFFF;font-size:16px;font-weight:bold;">
             <?= e(Config::get('app.name')) ?>
         </td>
     </tr>
@@ -38,7 +38,7 @@ $jobTitle = label($target, 'job_title', $locale);
 
             <?php if ($message !== null && $message !== ''): ?>
                 <p style="margin:0 0 4px;color:#5C6F76;font-size:14px;"><?= e($tr('pwreq.message')) ?></p>
-                <p style="margin:0 0 16px;padding:12px 16px;background:#F4F6F7;border-left:3px solid #0B5563;"><?= nl2br(e($message)) ?></p>
+                <p style="margin:0 0 16px;padding:12px 16px;background:#F3F4F6;border-left:3px solid #3730A3;"><?= nl2br(e($message)) ?></p>
             <?php endif; ?>
 
             <p style="margin:0 0 20px;padding:12px 16px;background:#FFF4E5;border-left:3px solid #B25E09;font-size:14px;">
@@ -46,12 +46,12 @@ $jobTitle = label($target, 'job_title', $locale);
             </p>
 
             <p style="margin:0;">
-                <a href="<?= e($link) ?>" style="display:inline-block;padding:10px 18px;background:#0B5563;color:#FFFFFF;text-decoration:none;border-radius:6px;font-weight:bold;"><?= e($tr('mail.pwreq.open')) ?></a>
+                <a href="<?= e($link) ?>" style="display:inline-block;padding:10px 18px;background:#3730A3;color:#FFFFFF;text-decoration:none;border-radius:6px;font-weight:bold;"><?= e($tr('mail.pwreq.open')) ?></a>
             </p>
         </td>
     </tr>
     <tr>
-        <td style="padding:14px 24px;border-top:1px solid #DDE4E7;font-size:12px;color:#5C6F76;"><?= e($tr('mail.footer')) ?></td>
+        <td style="padding:14px 24px;border-top:1px solid #E6E8EC;font-size:12px;color:#5C6F76;"><?= e($tr('mail.footer')) ?></td>
     </tr>
 </table>
 </body>
